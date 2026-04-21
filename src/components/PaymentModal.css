@@ -1,0 +1,160 @@
+.payment-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+  padding: 20px;
+}
+
+.payment-modal {
+  background-color: var(--white);
+  width: 100%;
+  max-width: 420px;
+  border-radius: 28px;
+  padding: 40px;
+  position: relative;
+  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6);
+  animation: modalScaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: 4px solid #ffcc00; /* Bold Yellow Border */
+}
+
+@keyframes modalScaleIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.payment-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  color: var(--text-muted);
+}
+
+.payment-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.momo-logo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  background-color: #000; /* Contrast black background */
+  padding: 20px;
+  border-radius: 20px;
+}
+
+.momo-logo-container img {
+  height: 50px;
+}
+
+.momo-logo-container span {
+  font-size: 24px;
+  font-weight: 900;
+  color: #ffcc00;
+  letter-spacing: 2px;
+}
+
+.payment-header h2 {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-top: 15px;
+}
+
+.amount-display {
+  background-color: var(--light);
+  padding: 20px;
+  border-radius: 16px;
+  text-align: center;
+  margin-bottom: 24px;
+  border: 1px dashed #ffcc00;
+}
+
+.amount-display label {
+  font-size: 14px;
+  color: var(--text-muted);
+  font-weight: 600;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.total-value {
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--primary);
+}
+
+.btn-momo {
+  background-color: #ffcc00; /* MTN Yellow */
+  color: #000;
+  height: 64px;
+  font-size: 18px;
+  font-weight: 900;
+  text-transform: uppercase;
+  border-radius: 18px;
+  box-shadow: 0 5px 0 #ccaa00;
+  margin-top: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.btn-momo:hover:not(:disabled) {
+  background-color: #ffd633;
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 #ccaa00;
+}
+
+.btn-momo:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #ccaa00;
+}
+
+.payment-success-state {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 20px 0;
+}
+
+.payment-success-state h2 {
+  font-size: 24px;
+  font-weight: 900;
+  color: #22c55e;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 480px) {
+  .payment-modal {
+    padding: 30px 20px;
+    margin: 10px;
+  }
+  
+  .total-value {
+    font-size: 26px;
+  }
+}
