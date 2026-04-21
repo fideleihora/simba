@@ -8,8 +8,15 @@
   display: flex;
   gap: 12px;
   overflow-x: auto;
-  padding: 10px 0;
+  padding: 10px 24px; /* Added horizontal padding */
   scrollbar-width: none; /* Firefox */
+  margin: 0 -24px; /* Offset the container padding if necessary, but actually let's just make it look good */
+}
+
+@media (max-width: 600px) {
+  .category-filter-section {
+    padding: 20px 0;
+  }
 }
 
 .category-list::-webkit-scrollbar {

@@ -2,6 +2,7 @@ import React from 'react';
 import { ShoppingCart, Heart, Eye } from 'lucide-react';
 import { Product } from '../types';
 import { useCart } from '../context/CartContext';
+import { useFavorites } from '../context/FavoritesContext';
 import { useLanguage } from '../context/LanguageContext';
 import './ProductCard.css';
 
@@ -11,7 +12,10 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { addToCart } = useCart();
+  const { toggleFavorite, isFavorite } = useFavorites();
   const { t } = useLanguage();
+
+  const isFav = isFavorite(product.id);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-RW', {
@@ -26,8 +30,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       <div className="product-image">
         <img src={product.image} alt={product.name} loading="lazy" />
         <div className="product-actions-overlay">
-          <button className="action-icon-btn" title="Add to Wishlist">
-            <Heart size={18} />
+          <button 
+            className={`action-icon-btn ${isFav ? 'active' : ''}`} 
+            title={isFav ? "Remove from Wishlist" : "Add to Wishlist"}
+            onClick={() => toggleFavorite(product)}
+          >
+            <Heart size={18} fill={isFav ? "currentColor" : "none"} />
           </button>
           <button className="action-icon-btn" title="Quick View">
             <Eye size={18} />

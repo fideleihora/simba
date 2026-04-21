@@ -75,6 +75,16 @@
   color: var(--white);
 }
 
+.action-icon-btn.active {
+  color: #ff4d4d;
+  background-color: var(--white);
+}
+
+.action-icon-btn.active:hover {
+  background-color: #ff4d4d;
+  color: var(--white);
+}
+
 .status-badge {
   position: absolute;
   top: 10px;

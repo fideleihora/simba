@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { X, Phone, CreditCard, CheckCircle2, Loader2 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import './PaymentModal.css';
 
 interface PaymentModalProps {
@@ -11,6 +13,8 @@ interface PaymentModalProps {
 
 const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, amount }) => {
   const { t } = useLanguage();
+  const { recordTransaction } = useCart();
+  const { user } = useAuth();
   const [phoneNumber, setPhoneNumber] = useState('');
   const [status, setStatus] = useState<'idle' | 'processing' | 'success'>('idle');
 
@@ -30,6 +34,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, amount }) 
     
     // Simulate MOMO payment process
     setTimeout(() => {
+      if (user) {
+        recordTransaction(user.id);
+      }
       setStatus('success');
       setTimeout(() => {
         onClose();

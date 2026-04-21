@@ -2,17 +2,20 @@ import React from 'react';
 import { X, Trash2, Plus, Minus, ShoppingBag, CreditCard } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 import './CartDrawer.css';
 
 interface CartDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   onPaymentOpen: () => void;
+  onAuthOpen: (mode: 'signin' | 'signup') => void;
 }
 
-const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, onPaymentOpen }) => {
+const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, onPaymentOpen, onAuthOpen }) => {
   const { cart, removeFromCart, updateQuantity, cartTotal, cartCount } = useCart();
   const { t } = useLanguage();
+  const { isAuthenticated } = useAuth();
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-RW', {
@@ -23,8 +26,12 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, onPaymentOpen 
   };
 
   const handleMomoPayment = () => {
-    onClose();
-    onPaymentOpen();
+    if (isAuthenticated) {
+      onClose();
+      onPaymentOpen();
+    } else {
+      onAuthOpen('signin');
+    }
   };
 
   return (
@@ -90,7 +97,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, onPaymentOpen 
                   <span className="btn-amount">{formatPrice(cartTotal)}</span>
                 </div>
               </button>
-              <button className="btn btn-primary btn-block checkout-btn">
+              <button className="btn btn-primary btn-block checkout-btn" onClick={handleMomoPayment}>
                 {t('checkout')}
               </button>
             </div>

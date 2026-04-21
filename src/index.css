@@ -67,6 +67,12 @@ ul {
   padding: 0 24px;
 }
 
+@media (max-width: 600px) {
+  .container {
+    padding: 0 16px;
+  }
+}
+
 /* Utilities */
 .btn {
   padding: 12px 24px;
@@ -118,6 +124,13 @@ ul {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+@media (max-width: 600px) {
+  .section-title {
+    font-size: 22px;
+    margin-bottom: 16px;
+  }
 }
 
 .section-title::before {

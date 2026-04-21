@@ -1,8 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { CartProvider, useCart } from './context/CartContext';
+import { FavoritesProvider } from './context/FavoritesContext';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { AuthProvider } from './context/AuthContext';
 import { useProducts } from './hooks/useProducts';
+import { useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import CategoryFilter from './components/CategoryFilter';
@@ -12,10 +15,13 @@ import AuthModal from './components/AuthModal';
 import PaymentModal from './components/PaymentModal';
 import Footer from './components/Footer';
 import ProductCard from './components/ProductCard';
+import TransactionModal from './components/TransactionModal';
+import ContactForm from './components/ContactForm';
 
 const AppContent: React.FC = () => {
   const { t } = useLanguage();
-  const { cartTotal } = useCart();
+  const { cartTotal, transactions } = useCart();
+  const { user } = useAuth();
   const {
     products,
     categories,
@@ -26,8 +32,13 @@ const AppContent: React.FC = () => {
     store
   } = useProducts();
 
+  const userTransactions = useMemo(() => {
+    return transactions.filter(t => t.userId === user?.id);
+  }, [transactions, user]);
+
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [authModal, setAuthModal] = useState<{ isOpen: boolean; mode: 'signin' | 'signup' }>({
     isOpen: false,
     mode: 'signin'
@@ -51,6 +62,7 @@ const AppContent: React.FC = () => {
         categories={categories}
         onSelectCategory={setSelectedCategory}
         selectedCategory={selectedCategory}
+        onHistoryOpen={() => setIsHistoryOpen(true)}
       />
       
       <main>
@@ -85,6 +97,8 @@ const AppContent: React.FC = () => {
         />
         
         <ProductGrid products={products} />
+
+        <ContactForm />
       </main>
 
       <Footer store={store} />
@@ -93,9 +107,11 @@ const AppContent: React.FC = () => {
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
         onPaymentOpen={() => setIsPaymentOpen(true)}
+        onAuthOpen={handleAuthOpen}
       />
 
       <AuthModal
+        key={authModal.isOpen ? 'open' : 'closed'}
         isOpen={authModal.isOpen}
         initialMode={authModal.mode}
         onClose={() => setAuthModal({ ...authModal, isOpen: false })}
@@ -105,6 +121,12 @@ const AppContent: React.FC = () => {
         isOpen={isPaymentOpen}
         onClose={() => setIsPaymentOpen(false)}
         amount={cartTotal}
+      />
+
+      <TransactionModal
+        isOpen={isHistoryOpen}
+        onClose={() => setIsHistoryOpen(false)}
+        transactions={userTransactions}
       />
 
       <style>{`
@@ -184,9 +206,13 @@ const App: React.FC = () => {
   return (
     <ThemeProvider>
       <LanguageProvider>
-        <CartProvider>
-          <AppContent />
-        </CartProvider>
+        <AuthProvider>
+          <FavoritesProvider>
+            <CartProvider>
+              <AppContent />
+            </CartProvider>
+          </FavoritesProvider>
+        </AuthProvider>
       </LanguageProvider>
     </ThemeProvider>
   );

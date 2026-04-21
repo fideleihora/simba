@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ShoppingCart, Search, Menu, User, Phone, MapPin, Heart, Globe, Sun, Moon, ChevronDown } from 'lucide-react';
+import { ShoppingCart, Search, Menu, User, Phone, MapPin, Heart, Globe, Sun, Moon, ChevronDown, X, History, LogOut } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useFavorites } from '../context/FavoritesContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
 import './Navbar.css';
 
 interface NavbarProps {
@@ -13,6 +15,7 @@ interface NavbarProps {
   categories: string[];
   onSelectCategory: (category: string | null) => void;
   selectedCategory: string | null;
+  onHistoryOpen: () => void;
 }
 
 const Navbar: React.FC<NavbarProps> = ({ 
@@ -22,12 +25,18 @@ const Navbar: React.FC<NavbarProps> = ({
   onAuthOpen,
   categories,
   onSelectCategory,
-  selectedCategory
+  selectedCategory,
+  onHistoryOpen
 }) => {
-  const { cartCount } = useCart();
+  const { cartCount, transactions } = useCart();
+  const { favoritesCount } = useFavorites();
   const { t, language, setLanguage } = useLanguage();
   const { theme, toggleTheme } = useTheme();
+  const { user, logout, isAuthenticated } = useAuth();
+
+  const userTransactionsCount = transactions.filter(t => t.userId === user?.id).length;
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -43,10 +52,141 @@ const Navbar: React.FC<NavbarProps> = ({
   const handleCategorySelect = (category: string | null) => {
     onSelectCategory(category);
     setIsCategoryMenuOpen(false);
+    setIsMobileMenuOpen(false);
+  };
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const handleHistoryClick = () => {
+    if (isAuthenticated) {
+      onHistoryOpen();
+    } else {
+      onAuthOpen('signin');
+    }
   };
 
   return (
     <header className="main-header sticky">
+      {/* Mobile Menu Overlay */}
+      <div className={`mobile-menu-overlay ${isMobileMenuOpen ? 'open' : ''}`} onClick={toggleMobileMenu}></div>
+      
+      {/* Mobile Menu Drawer */}
+      <div className={`mobile-menu-drawer ${isMobileMenuOpen ? 'open' : ''}`}>
+        <div className="mobile-menu-header">
+          <div className="logo">
+            <img src="/assets/SIMBA_LOGO.png" alt="Simba Logo" />
+            <div className="logo-text">
+              <span className="brand-name">Simba</span>
+            </div>
+          </div>
+          <button className="close-mobile-menu" onClick={toggleMobileMenu}>
+            <X size={24} />
+          </button>
+        </div>
+
+        <div className="mobile-menu-content">
+          {isAuthenticated && (
+            <div className="mobile-user-info">
+              <div className="user-avatar">
+                <User size={24} />
+              </div>
+              <div className="user-details">
+                <span className="user-name">{user?.fullName}</span>
+                <span className="user-phone">{user?.phoneNumber}</span>
+              </div>
+            </div>
+          )}
+
+          <div className="mobile-search-container">
+            <div className="search-bar">
+              <input
+                type="text"
+                placeholder={t('searchPlaceholder')}
+                value={searchTerm}
+                onChange={(e) => onSearch(e.target.value)}
+              />
+              <button className="search-btn">
+                <Search size={20} />
+              </button>
+            </div>
+          </div>
+
+          <div className="mobile-menu-section">
+            <h3>{t('allCategories')}</h3>
+            <div className="mobile-category-list">
+              <button 
+                className={`mobile-category-item ${selectedCategory === null ? 'active' : ''}`}
+                onClick={() => handleCategorySelect(null)}
+              >
+                {t('allProducts')}
+              </button>
+              {categories.map((category) => (
+                <button
+                  key={category}
+                  className={`mobile-category-item ${selectedCategory === category ? 'active' : ''}`}
+                  onClick={() => handleCategorySelect(category)}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="mobile-menu-section">
+            <h3>{t('settings')}</h3>
+            <div className="mobile-settings">
+              <div className="setting-item">
+                <span>{theme === 'light' ? t('darkMode') || 'Dark Mode' : t('lightMode') || 'Light Mode'}</span>
+                <button className="theme-toggle-btn" onClick={toggleTheme}>
+                  {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+                </button>
+              </div>
+              <div className="setting-item">
+                <span>{t('language')}</span>
+                <div className="language-switcher">
+                  <button onClick={() => setLanguage('en')} className={language === 'en' ? 'active' : ''}>EN</button>
+                  <button onClick={() => setLanguage('rw')} className={language === 'rw' ? 'active' : ''}>RW</button>
+                  <button onClick={() => setLanguage('fr')} className={language === 'fr' ? 'active' : ''}>FR</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mobile-menu-section">
+            <h3>{t('account')}</h3>
+            <div className="mobile-auth-links">
+              {!isAuthenticated ? (
+                <>
+                  <button onClick={() => { onAuthOpen('signin'); toggleMobileMenu(); }}>{t('signIn')}</button>
+                  <button onClick={() => { onAuthOpen('signup'); toggleMobileMenu(); }} className="signup-btn">{t('signUp')}</button>
+                </>
+              ) : (
+                <>
+                  <button onClick={() => { handleHistoryClick(); toggleMobileMenu(); }}>
+                    📜 {t('purchaseHistory') || 'Purchase History'} ({userTransactionsCount})
+                  </button>
+                  <button onClick={() => { logout(); toggleMobileMenu(); }} className="logout-btn">
+                    <LogOut size={18} /> {t('logout') || 'Logout'}
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+
+          <div className="mobile-menu-section">
+            <h3>{t('services')}</h3>
+            <div className="mobile-service-links">
+              <a href="#">{t('supermarket')}</a>
+              <a href="#">{t('restaurant')}</a>
+              <a href="#">{t('promotions')}</a>
+              <a href="#">{t('newArrivals')}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Utility Bar */}
       <div className="utility-bar">
         <div className="container utility-content">
@@ -83,8 +223,17 @@ const Navbar: React.FC<NavbarProps> = ({
             </button>
             <a href="#" onClick={(e) => { e.preventDefault(); onAuthOpen('signin'); }}>{t('aboutUs')}</a>
             <a href="#" onClick={(e) => { e.preventDefault(); onAuthOpen('signin'); }}>{t('contact')}</a>
-            <a href="#" onClick={(e) => { e.preventDefault(); onAuthOpen('signin'); }}>{t('signIn')}</a>
-            <a href="#" onClick={(e) => { e.preventDefault(); onAuthOpen('signup'); }} className="signup-link">{t('signUp')}</a>
+            {!isAuthenticated ? (
+              <>
+                <a href="#" onClick={(e) => { e.preventDefault(); onAuthOpen('signin'); }}>{t('signIn')}</a>
+                <a href="#" onClick={(e) => { e.preventDefault(); onAuthOpen('signup'); }} className="signup-link">{t('signUp')}</a>
+              </>
+            ) : (
+              <div className="user-menu">
+                <span className="user-greeting">Hi, {user?.fullName.split(' ')[0]}</span>
+                <button onClick={logout} className="logout-link"><LogOut size={16} /> {t('logout') || 'Logout'}</button>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -93,7 +242,7 @@ const Navbar: React.FC<NavbarProps> = ({
       <nav className="navbar">
         <div className="container nav-content">
           <div className="logo-section">
-            <Menu className="mobile-menu-icon" />
+            <Menu className="mobile-menu-icon" onClick={toggleMobileMenu} />
             <div className="logo" onClick={() => handleCategorySelect(null)} style={{cursor: 'pointer'}}>
               <img src="/assets/SIMBA_LOGO.png" alt="Simba Logo" />
               <div className="logo-text">
@@ -103,7 +252,7 @@ const Navbar: React.FC<NavbarProps> = ({
             </div>
           </div>
 
-          <div className="search-bar">
+          <div className="search-bar desktop-search">
             <input
               type="text"
               placeholder={t('searchPlaceholder')}
@@ -116,8 +265,18 @@ const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           <div className="nav-actions">
+            <button className="nav-action-item" onClick={handleHistoryClick}>
+              <div className="cart-icon-wrapper">
+                <History size={24} />
+                {userTransactionsCount > 0 && <span className="cart-badge" style={{backgroundColor: 'var(--primary)', borderColor: 'var(--white)'}}>{userTransactionsCount}</span>}
+              </div>
+              <span className="action-label">{t('purchaseHistory') || 'Records'}</span>
+            </button>
             <button className="nav-action-item">
-              <Heart size={24} />
+              <div className="cart-icon-wrapper">
+                <Heart size={24} />
+                {favoritesCount > 0 && <span className="cart-badge">{favoritesCount}</span>}
+              </div>
               <span className="action-label">{t('favorites')}</span>
             </button>
             <button className="nav-action-item" onClick={onCartToggle}>
@@ -127,13 +286,30 @@ const Navbar: React.FC<NavbarProps> = ({
               </div>
               <span className="action-label">{t('cart')}</span>
             </button>
-            <button className="nav-action-item profile-btn" onClick={() => onAuthOpen('signin')}>
+            <button className="nav-action-item profile-btn" onClick={() => !isAuthenticated && onAuthOpen('signin')}>
               <User size={24} />
-              <span className="action-label">{t('account')}</span>
+              <span className="action-label">{isAuthenticated ? user?.fullName.split(' ')[0] : t('account')}</span>
             </button>
           </div>
         </div>
       </nav>
+
+      {/* Mobile Search Bar (Only visible on mobile) */}
+      <div className="mobile-search-bar">
+        <div className="container">
+          <div className="search-bar">
+            <input
+              type="text"
+              placeholder={t('searchPlaceholder')}
+              value={searchTerm}
+              onChange={(e) => onSearch(e.target.value)}
+            />
+            <button className="search-btn">
+              <Search size={20} />
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* Category/Service Bar */}
       <div className="service-bar">

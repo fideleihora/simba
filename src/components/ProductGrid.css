@@ -18,7 +18,8 @@
 
 @media (max-width: 600px) {
   .product-grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+    padding: 0 16px;
   }
 }

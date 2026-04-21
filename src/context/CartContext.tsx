@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { CartItem, Product } from '../types';
+import { CartItem, Product, Transaction } from '../types';
 
 interface CartContextType {
   cart: CartItem[];
@@ -9,6 +9,8 @@ interface CartContextType {
   clearCart: () => void;
   cartTotal: number;
   cartCount: number;
+  transactions: Transaction[];
+  recordTransaction: (userId: string) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -19,9 +21,18 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return savedCart ? JSON.parse(savedCart) : [];
   });
 
+  const [transactions, setTransactions] = useState<Transaction[]>(() => {
+    const savedTransactions = localStorage.getItem('simba-transactions');
+    return savedTransactions ? JSON.parse(savedTransactions) : [];
+  });
+
   useEffect(() => {
     localStorage.setItem('simba-cart', JSON.stringify(cart));
   }, [cart]);
+
+  useEffect(() => {
+    localStorage.setItem('simba-transactions', JSON.stringify(transactions));
+  }, [transactions]);
 
   const addToCart = (product: Product) => {
     setCart((prev) => {
@@ -51,6 +62,22 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const clearCart = () => setCart([]);
 
+  const recordTransaction = (userId: string) => {
+    if (cart.length === 0) return;
+
+    const newTransaction: Transaction = {
+      id: `TRX-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      userId,
+      date: new Date().toISOString(),
+      items: [...cart],
+      total: cartTotal,
+      status: 'completed',
+    };
+
+    setTransactions((prev) => [newTransaction, ...prev]);
+    clearCart();
+  };
+
   const cartTotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
   const cartCount = cart.reduce((count, item) => count + item.quantity, 0);
 
@@ -64,6 +91,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         clearCart,
         cartTotal,
         cartCount,
+        transactions,
+        recordTransaction,
       }}
     >
       {children}

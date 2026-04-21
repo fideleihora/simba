@@ -19,6 +19,8 @@ const translations: Translations = {
   favorites: { en: 'Favorites', rw: 'Ibikunzwe', fr: 'Favoris' },
   cart: { en: 'Cart', rw: 'Ikarita', fr: 'Panier' },
   account: { en: 'Account', rw: 'Konti', fr: 'Compte' },
+  logout: { en: 'Logout', rw: 'Sohoka', fr: 'Déconnexion' },
+  purchaseHistory: { en: 'Purchase History', rw: 'Amateka y’Ibihashywe', fr: 'Historique des Achats' },
   allCategories: { en: 'All Categories', rw: 'Ibyiciro Byose', fr: 'Toutes Catégories' },
   supermarket: { en: 'Supermarket', rw: 'Isoko', fr: 'Supermarché' },
   restaurant: { en: 'Restaurant', rw: 'Resitora', fr: 'Restaurant' },
@@ -66,6 +68,22 @@ const translations: Translations = {
   confirmPayment: { en: 'Confirm Payment', rw: 'Emeza Kwishyura', fr: 'Confirmer le Paiement' },
   processingPayment: { en: 'Processing Payment...', rw: 'Turimo kwakira ubwishyu...', fr: 'Traitement du paiement...' },
   paymentSuccess: { en: 'Payment Successful!', rw: 'Ubwishyu bwageze', fr: 'Paiement Réussi !' },
+
+  // Contact Form
+  contactTitle: { en: 'Get in Touch', rw: 'Twandikire', fr: 'Contactez-nous' },
+  contactDesc: { en: 'Have a question or feedback? We\'d love to hear from you.', rw: 'Ufite ikibazo cyangwa igitekerezo? Twandikire uyu munsi.', fr: 'Vous avez une question ou un commentaire ? Contactez-nous.' },
+  callUs: { en: 'Call Us', rw: 'Duhamagare', fr: 'Appelez-nous' },
+  emailUs: { en: 'Email Us', rw: 'Twandikire kuri Email', fr: 'Envoyez-nous un email' },
+  fullName: { en: 'Full Name', rw: 'Amazina Yombi', fr: 'Nom Complet' },
+  namePlaceholder: { en: 'Enter your name', rw: 'Andika amazina yawe', fr: 'Entrez votre nom' },
+  contactInfo: { en: 'Email or Phone Number', rw: 'Email cyangwa Numero ya Terefoni', fr: 'Email ou Numéro de Téléphone' },
+  contactPlaceholder: { en: 'email@example.com or 078...', rw: 'email@urugero.com cyangwa 078...', fr: 'email@exemple.com ou 078...' },
+  messageLabel: { en: 'Your Message / Question', rw: 'Ubutumwa cyangwa Ikibazo', fr: 'Votre Message / Question' },
+  messagePlaceholder: { en: 'How can we help you?', rw: 'Ni gute twagufasha?', fr: 'Comment pouvons-nous vous aider ?' },
+  sendMessage: { en: 'Send Message', rw: 'Yohereza Ubutumwa', fr: 'Envoyer le Message' },
+  thankYou: { en: 'Thank You!', rw: 'Murakoze!', fr: 'Merci !' },
+  messageSent: { en: 'Your message has been sent successfully.', rw: 'Ubutumwa bwawe bwoherejwe neza.', fr: 'Votre message a été envoyé avec succès.' },
+  sendAnother: { en: 'Send Another Message', rw: 'Yohereza ubundi butumwa', fr: 'Envoyer un autre message' },
 };
 
 interface LanguageContextType {
