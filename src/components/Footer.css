@@ -1,8 +1,8 @@
 .footer {
   background-color: var(--dark);
   color: var(--white);
-  padding: 80px 0 0;
-  margin-top: 40px;
+  padding: 30px 0 0;
+  margin-top: 20px;
 }
 
 .footer-grid {
@@ -10,33 +10,41 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  margin-bottom: 60px;
+  margin-bottom: 20px;
 }
 
 .footer-logo {
-  margin-bottom: 24px;
+  margin-bottom: 12px;
   justify-content: center;
+}
+
+.footer-logo img {
+  height: 32px;
+}
+
+.footer-logo .brand-name {
+  font-size: 18px;
 }
 
 .footer-desc {
   color: #adb5bd;
-  margin-bottom: 30px;
-  max-width: 500px;
-  font-size: 14px;
-  line-height: 1.8;
+  margin-bottom: 15px;
+  max-width: 400px;
+  font-size: 12px;
+  line-height: 1.5;
   margin-left: auto;
   margin-right: auto;
 }
 
 .social-links {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   justify-content: center;
 }
 
 .social-links a {
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   background-color: rgba(255,255,255,0.05);
   border-radius: 50%;
   display: flex;
@@ -46,14 +54,13 @@
   transition: var(--transition);
 }
 
-.social-links a:hover {
-  background-color: var(--secondary);
-  color: var(--dark);
-  transform: translateY(-3px);
+.social-links a svg {
+  width: 16px;
+  height: 16px;
 }
 
 .footer-bottom {
-  padding: 30px 0;
+  padding: 15px 0;
   border-top: 1px solid rgba(255,255,255,0.05);
 }
 
@@ -62,14 +69,15 @@
   justify-content: space-between;
   align-items: center;
   color: #6c757d;
-  font-size: 13px;
+  font-size: 11px;
 }
 
 .payment-methods {
   display: flex;
-  gap: 20px;
+  gap: 15px;
   font-weight: 700;
   color: #adb5bd;
+  font-size: 10px;
 }
 
 @media (max-width: 600px) {
