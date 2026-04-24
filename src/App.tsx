@@ -58,6 +58,19 @@ const AppContent: React.FC = () => {
 
   return (
     <div className="app">
+      <div className="promo-slider-container">
+        <div className="promo-slider">
+          <span className="promo-text">🚀 30 MINUTES DELIVERY</span>
+          <span className="promo-text">🥬 FRESH PRODUCTS</span>
+          <span className="promo-text mtn">📱 MTN MOMO PAY</span>
+          <span className="promo-text airtel">💳 AIRTEL MONEY</span>
+          {/* Duplicate for seamless loop */}
+          <span className="promo-text">🚀 30 MINUTES DELIVERY</span>
+          <span className="promo-text">🥬 FRESH PRODUCTS</span>
+          <span className="promo-text mtn">📱 MTN MOMO PAY</span>
+          <span className="promo-text airtel">💳 AIRTEL MONEY</span>
+        </div>
+      </div>
       <Navbar
         searchTerm={searchTerm}
         onSearch={setSearchTerm}

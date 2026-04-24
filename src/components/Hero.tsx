@@ -16,19 +16,6 @@ const Hero: React.FC<HeroProps> = ({ tagline }) => {
         <div className="hero-grid">
           <div className="hero-main-banner">
             <div className="banner-content">
-              <div className="hero-promo-slider">
-                <div className="promo-track">
-                  <span className="p-text">🚀 30 MINUTES DELIVERY</span>
-                  <span className="p-text">🥬 FRESH PRODUCTS</span>
-                  <span className="p-text mtn">📱 MTN MOMO PAY</span>
-                  <span className="p-text airtel">💳 AIRTEL MONEY</span>
-                  {/* Duplicate */}
-                  <span className="p-text">🚀 30 MINUTES DELIVERY</span>
-                  <span className="p-text">🥬 FRESH PRODUCTS</span>
-                  <span className="p-text mtn">📱 MTN MOMO PAY</span>
-                  <span className="p-text airtel">💳 AIRTEL MONEY</span>
-                </div>
-              </div>
               <span className="promo-badge"><Zap size={14} /> {t('promoBadge')}</span>
               <h1>{tagline}</h1>
               <p>Get the best quality groceries and household items at unbeatable prices. Delivered right to your doorstep in Kigali.</p>
