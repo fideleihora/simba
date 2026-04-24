@@ -18,6 +18,7 @@ interface NavbarProps {
   onSelectCategory: (category: string | null) => void;
   selectedCategory: string | null;
   onHistoryOpen: () => void;
+  onLogoClick: () => void;
 }
 
 const Navbar: React.FC<NavbarProps> = ({ 
@@ -30,7 +31,8 @@ const Navbar: React.FC<NavbarProps> = ({
   categories,
   onSelectCategory,
   selectedCategory,
-  onHistoryOpen
+  onHistoryOpen,
+  onLogoClick
 }) => {
   const { cartCount, transactions } = useCart();
   const { favoritesCount } = useFavorites();
@@ -79,7 +81,7 @@ const Navbar: React.FC<NavbarProps> = ({
       {/* Mobile Menu Drawer */}
       <div className={`mobile-menu-drawer ${isMobileMenuOpen ? 'open' : ''}`}>
         <div className="mobile-menu-header">
-          <div className="logo">
+          <div className="logo" onClick={() => { onLogoClick(); toggleMobileMenu(); }} style={{cursor: 'pointer'}}>
             <img src="/assets/SIMBA_LOGO.png" alt="Simba Logo" />
             <div className="logo-text">
               <span className="brand-name">Simba</span>
@@ -253,7 +255,7 @@ const Navbar: React.FC<NavbarProps> = ({
         <div className="container nav-content">
           <div className="logo-section">
             <Menu className="mobile-menu-icon" onClick={toggleMobileMenu} />
-            <div className="logo" onClick={() => handleCategorySelect(null)} style={{cursor: 'pointer'}}>
+            <div className="logo" onClick={onLogoClick} style={{cursor: 'pointer'}}>
               <img src="/assets/SIMBA_LOGO.png" alt="Simba Logo" />
               <div className="logo-text">
                 <span className="brand-name">Simba</span>

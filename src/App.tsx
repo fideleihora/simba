@@ -34,6 +34,8 @@ const AppContent: React.FC = () => {
     store
   } = useProducts();
 
+  const [view, setView] = useState<'home' | 'shop'>('home');
+
   const userTransactions = useMemo(() => {
     return transactions.filter(t => t.userId === user?.id);
   }, [transactions, user]);
@@ -50,10 +52,23 @@ const AppContent: React.FC = () => {
 
   // Featured sections
   const promotions = useMemo(() => products.filter(p => p.price > 50000).slice(0, 4), [products]);
-  const newArrivals = useMemo(() => products.slice(0, 4), [products]);
+  const newArrivals = useMemo(() => products.slice(4, 8), [products]);
+  const frequentlyBought = useMemo(() => products.slice(10, 14), [products]);
 
   const handleAuthOpen = (mode: 'signin' | 'signup') => {
     setAuthModal({ isOpen: true, mode });
+  };
+
+  const handleStartShopping = () => {
+    setView('shop');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleLogoClick = () => {
+    setView('home');
+    setSelectedCategory(null);
+    setSearchTerm('');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -66,62 +81,98 @@ const AppContent: React.FC = () => {
         onBranchesOpen={() => setIsBranchesOpen(true)}
         onAuthOpen={handleAuthOpen}
         categories={categories}
-        onSelectCategory={setSelectedCategory}
+        onSelectCategory={(cat) => {
+          setSelectedCategory(cat);
+          if (cat) {
+            setView('shop');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        }}
         selectedCategory={selectedCategory}
         onHistoryOpen={() => setIsHistoryOpen(true)}
+        onLogoClick={handleLogoClick}
       />
       
       <main>
-        <Hero tagline={store.tagline} />
-        
-        <div className="featured-section">
-          <div className="container">
-            <div className="section-cta-top">
-              <button 
-                className="start-shopping-btn"
-                onClick={() => document.getElementById('products-section')?.scrollIntoView({ behavior: 'smooth' })}
-              >
-                START SHOPPING NOW
+        {view === 'home' ? (
+          <>
+            <Hero tagline={store.tagline} />
+            
+            <div className="featured-section">
+              <div className="container">
+                <div className="section-cta-top">
+                  <button 
+                    className="start-shopping-btn"
+                    onClick={handleStartShopping}
+                  >
+                    START SHOPPING NOW
+                  </button>
+                </div>
+                <h2 className="section-title">{t('promotions')}</h2>
+                <div className="product-grid">
+                  {promotions.map(product => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="featured-section frequently-bought">
+              <div className="container">
+                <h2 className="section-title">✨ Frequently Bought</h2>
+                <div className="product-grid">
+                  {frequentlyBought.map(product => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+                <div style={{ marginTop: '40px', textAlign: 'center' }}>
+                  <button className="btn btn-primary btn-lg" onClick={handleStartShopping}>
+                    View All Products
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="big-promo-slider-container">
+              <div className="big-promo-slider">
+                <div className="big-promo-item">🚀 30 MINUTES DELIVERY</div>
+                <div className="big-promo-item">🥬 FRESH PRODUCTS</div>
+                <div className="big-promo-item mtn">📱 MTN MOMO PAY</div>
+                <div className="big-promo-item airtel">💳 AIRTEL MONEY</div>
+              </div>
+            </div>
+
+            <div className="featured-section">
+              <div className="container">
+                <h2 className="section-title">{t('newArrivals')}</h2>
+                <div className="product-grid">
+                  {newArrivals.map(product => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <ContactForm />
+          </>
+        ) : (
+          <div className="shop-view-container">
+            <div className="container" style={{ padding: '40px 24px' }}>
+              <button className="back-to-home" onClick={() => setView('home')}>
+                ← Back to Home
               </button>
-            </div>
-            <h2 className="section-title">{t('promotions')}</h2>
-            <div className="product-grid">
-              {promotions.map(product => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          </div>
-        </div>
+              <h1 className="page-title">Browse Our Store</h1>
+              
+              <CategoryFilter
+                categories={categories}
+                selectedCategory={selectedCategory}
+                onSelectCategory={setSelectedCategory}
+              />
 
-        <CategoryFilter
-          categories={categories}
-          selectedCategory={selectedCategory}
-          onSelectCategory={setSelectedCategory}
-        />
-
-        <div className="big-promo-slider-container">
-          <div className="big-promo-slider">
-            <div className="big-promo-item">🚀 30 MINUTES DELIVERY</div>
-            <div className="big-promo-item">🥬 FRESH PRODUCTS</div>
-            <div className="big-promo-item mtn">📱 MTN MOMO PAY</div>
-            <div className="big-promo-item airtel">💳 AIRTEL MONEY</div>
-          </div>
-        </div>
-
-        <ProductGrid products={products} />
-
-        <div className="featured-section">
-          <div className="container">
-            <h2 className="section-title">{t('newArrivals')}</h2>
-            <div className="product-grid">
-              {newArrivals.map(product => (
-                <ProductCard key={product.id} product={product} />
-              ))}
+              <ProductGrid products={products} />
             </div>
           </div>
-        </div>
-
-        <ContactForm />
+        )}
       </main>
 
       <Footer store={store} />
@@ -163,6 +214,29 @@ const AppContent: React.FC = () => {
       />
 
       <style>{`
+        .shop-view-container {
+          background-color: var(--light);
+          min-height: 100vh;
+        }
+        .back-to-home {
+          background: none;
+          color: var(--primary);
+          font-weight: 800;
+          font-size: 16px;
+          margin-bottom: 20px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .back-to-home:hover {
+          text-decoration: underline;
+        }
+        .page-title {
+          font-size: 32px;
+          font-weight: 900;
+          color: var(--dark);
+          margin-bottom: 30px;
+        }
         .big-promo-slider-container {
           width: 100%;
           height: 120px;
