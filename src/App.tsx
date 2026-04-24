@@ -108,12 +108,6 @@ const AppContent: React.FC = () => {
                     START SHOPPING NOW
                   </button>
                 </div>
-                <h2 className="section-title">{t('promotions')}</h2>
-                <div className="product-grid">
-                  {promotions.map(product => (
-                    <ProductCard key={product.id} product={product} />
-                  ))}
-                </div>
               </div>
             </div>
 
@@ -142,17 +136,6 @@ const AppContent: React.FC = () => {
               </div>
             </div>
 
-            <div className="featured-section">
-              <div className="container">
-                <h2 className="section-title">{t('newArrivals')}</h2>
-                <div className="product-grid">
-                  {newArrivals.map(product => (
-                    <ProductCard key={product.id} product={product} />
-                  ))}
-                </div>
-              </div>
-            </div>
-
             <ContactForm />
           </>
         ) : (
@@ -161,15 +144,40 @@ const AppContent: React.FC = () => {
               <button className="back-to-home" onClick={() => setView('home')}>
                 ← Back to Home
               </button>
-              <h1 className="page-title">Browse Our Store</h1>
               
-              <CategoryFilter
-                categories={categories}
-                selectedCategory={selectedCategory}
-                onSelectCategory={setSelectedCategory}
-              />
+              <div className="shop-featured-header">
+                <h1 className="page-title">Shop Our Collection</h1>
+                
+                <div className="featured-row">
+                  <div className="featured-col">
+                    <h2 className="section-title">🔥 {t('promotions')}</h2>
+                    <div className="product-grid compact">
+                      {promotions.map(product => (
+                        <ProductCard key={product.id} product={product} />
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="featured-col">
+                    <h2 className="section-title">🆕 {t('newArrivals')}</h2>
+                    <div className="product-grid compact">
+                      {newArrivals.map(product => (
+                        <ProductCard key={product.id} product={product} />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-              <ProductGrid products={products} />
+              <div className="all-products-browser">
+                <h2 className="section-title">📦 {t('allProducts')}</h2>
+                <CategoryFilter
+                  categories={categories}
+                  selectedCategory={selectedCategory}
+                  onSelectCategory={setSelectedCategory}
+                />
+                <ProductGrid products={products} />
+              </div>
             </div>
           </div>
         )}
@@ -236,6 +244,24 @@ const AppContent: React.FC = () => {
           font-weight: 900;
           color: var(--dark);
           margin-bottom: 30px;
+          text-align: center;
+        }
+        .shop-featured-header {
+          margin-bottom: 60px;
+        }
+        .featured-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 40px;
+          margin-top: 20px;
+        }
+        .product-grid.compact {
+          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        }
+        @media (max-width: 1024px) {
+          .featured-row {
+            grid-template-columns: 1fr;
+          }
         }
         .big-promo-slider-container {
           width: 100%;
