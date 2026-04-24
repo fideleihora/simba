@@ -71,6 +71,15 @@ const AppContent: React.FC = () => {
         onHistoryOpen={() => setIsHistoryOpen(true)}
       />
       
+      <div className="top-start-shopping">
+        <button 
+          className="start-shopping-btn"
+          onClick={() => document.getElementById('products-section')?.scrollIntoView({ behavior: 'smooth' })}
+        >
+          START SHOPPING NOW
+        </button>
+      </div>
+      
       <main>
         <Hero tagline={store.tagline} />
         
@@ -146,6 +155,30 @@ const AppContent: React.FC = () => {
       />
 
       <style>{`
+        .top-start-shopping {
+          display: flex;
+          justify-content: center;
+          padding: 20px 0 10px;
+          background-color: var(--light);
+        }
+        .start-shopping-btn {
+          background-color: var(--secondary);
+          color: var(--dark);
+          padding: 16px 40px;
+          border-radius: 50px;
+          font-weight: 900;
+          font-size: 18px;
+          letter-spacing: 1px;
+          box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+          border: 2px solid var(--dark);
+          transition: var(--transition);
+          cursor: pointer;
+        }
+        .start-shopping-btn:hover {
+          transform: scale(1.05);
+          box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+          background-color: var(--secondary-hover);
+        }
         .featured-section {
           padding: 60px 24px;
         }

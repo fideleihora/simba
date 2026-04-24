@@ -20,7 +20,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({ products }) => {
   }
 
   return (
-    <section className="product-grid-section">
+    <section className="product-grid-section" id="products-section">
       <div className="container">
         <h2 className="section-title">{t('allProducts')}</h2>
         <div className="product-grid">
