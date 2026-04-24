@@ -19,10 +19,6 @@ const Hero: React.FC<HeroProps> = ({ tagline }) => {
               <span className="promo-badge"><Zap size={14} /> {t('promoBadge')}</span>
               <h1>{tagline}</h1>
               <p>Get the best quality groceries and household items at unbeatable prices. Delivered right to your doorstep in Kigali.</p>
-              <div className="hero-cta">
-                <button className="btn btn-secondary btn-lg">{t('shopSupermarket')} <ChevronRight size={20} /></button>
-                <button className="btn btn-outline btn-lg">{t('viewDeals')}</button>
-              </div>
             </div>
             <div className="banner-image">
               <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=1000" alt="Fresh Groceries" />
@@ -34,14 +30,12 @@ const Hero: React.FC<HeroProps> = ({ tagline }) => {
               <div className="side-content">
                 <h3>{t('bakeryTitle')}</h3>
                 <p>{t('bakerySub')}</p>
-                <a href="#">{t('orderNow')} <ChevronRight size={14} /></a>
               </div>
             </div>
             <div className="side-banner promo-2">
               <div className="side-content">
                 <h3>{t('restaurantTitle')}</h3>
                 <p>{t('restaurantSub')}</p>
-                <a href="#">{t('viewMenu')} <ChevronRight size={14} /></a>
               </div>
             </div>
           </div>

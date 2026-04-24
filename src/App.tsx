@@ -119,11 +119,6 @@ const AppContent: React.FC = () => {
                     <ProductCard key={product.id} product={product} />
                   ))}
                 </div>
-                <div style={{ marginTop: '40px', textAlign: 'center' }}>
-                  <button className="btn btn-primary btn-lg" onClick={handleStartShopping}>
-                    View All Products
-                  </button>
-                </div>
               </div>
             </div>
 

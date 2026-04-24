@@ -37,9 +37,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           >
             <Heart size={18} fill={isFav ? "currentColor" : "none"} />
           </button>
-          <button className="action-icon-btn" title="Quick View">
-            <Eye size={18} />
-          </button>
         </div>
         {!product.inStock && <span className="status-badge out-of-stock">{t('soldOut')}</span>}
         {product.price > 50000 && <span className="status-badge promo">{t('sale')}</span>}
