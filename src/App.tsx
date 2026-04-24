@@ -71,20 +71,19 @@ const AppContent: React.FC = () => {
         onHistoryOpen={() => setIsHistoryOpen(true)}
       />
       
-      <div className="top-start-shopping">
-        <button 
-          className="start-shopping-btn"
-          onClick={() => document.getElementById('products-section')?.scrollIntoView({ behavior: 'smooth' })}
-        >
-          START SHOPPING NOW
-        </button>
-      </div>
-      
       <main>
         <Hero tagline={store.tagline} />
         
         <div className="featured-section">
           <div className="container">
+            <div className="section-cta-top">
+              <button 
+                className="start-shopping-btn"
+                onClick={() => document.getElementById('products-section')?.scrollIntoView({ behavior: 'smooth' })}
+              >
+                START SHOPPING NOW
+              </button>
+            </div>
             <h2 className="section-title">{t('promotions')}</h2>
             <div className="product-grid">
               {promotions.map(product => (
@@ -155,11 +154,10 @@ const AppContent: React.FC = () => {
       />
 
       <style>{`
-        .top-start-shopping {
+        .section-cta-top {
           display: flex;
           justify-content: center;
-          padding: 20px 0 10px;
-          background-color: var(--light);
+          margin-bottom: 30px;
         }
         .start-shopping-btn {
           background-color: var(--secondary);
