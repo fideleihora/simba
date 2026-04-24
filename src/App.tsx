@@ -58,19 +58,6 @@ const AppContent: React.FC = () => {
 
   return (
     <div className="app">
-      <div className="promo-slider-container">
-        <div className="promo-slider">
-          <span className="promo-text">🚀 30 MINUTES DELIVERY</span>
-          <span className="promo-text">🥬 FRESH PRODUCTS</span>
-          <span className="promo-text mtn">📱 MTN MOMO PAY</span>
-          <span className="promo-text airtel">💳 AIRTEL MONEY</span>
-          {/* Duplicate for seamless loop */}
-          <span className="promo-text">🚀 30 MINUTES DELIVERY</span>
-          <span className="promo-text">🥬 FRESH PRODUCTS</span>
-          <span className="promo-text mtn">📱 MTN MOMO PAY</span>
-          <span className="promo-text airtel">💳 AIRTEL MONEY</span>
-        </div>
-      </div>
       <Navbar
         searchTerm={searchTerm}
         onSearch={setSearchTerm}
@@ -111,6 +98,15 @@ const AppContent: React.FC = () => {
           selectedCategory={selectedCategory}
           onSelectCategory={setSelectedCategory}
         />
+
+        <div className="big-promo-slider-container">
+          <div className="big-promo-slider">
+            <div className="big-promo-item">🚀 30 MINUTES DELIVERY</div>
+            <div className="big-promo-item">🥬 FRESH PRODUCTS</div>
+            <div className="big-promo-item mtn">📱 MTN MOMO PAY</div>
+            <div className="big-promo-item airtel">💳 AIRTEL MONEY</div>
+          </div>
+        </div>
 
         <ProductGrid products={products} />
 
@@ -167,38 +163,53 @@ const AppContent: React.FC = () => {
       />
 
       <style>{`
-        .promo-slider-container {
+        .big-promo-slider-container {
           width: 100%;
+          height: 120px;
           overflow: hidden;
           background: var(--dark);
-          padding: 12px 0;
-          margin-bottom: 20px;
-          border-radius: 8px;
-          display: flex;
-          white-space: nowrap;
-        }
-        .promo-slider {
-          display: inline-flex;
-          animation: slide 20s linear infinite;
-        }
-        .promo-text {
-          color: var(--white);
-          font-weight: 800;
-          font-size: 16px;
-          margin-right: 50px;
+          margin: 40px 0;
           display: flex;
           align-items: center;
-          letter-spacing: 0.5px;
+          position: relative;
         }
-        .promo-text.mtn {
+        .big-promo-slider {
+          display: flex;
+          width: 400%; /* 4 items */
+          height: 100%;
+          animation: big-slide 16s step-end infinite;
+        }
+        .big-promo-item {
+          width: 25%; /* 1/4 of container */
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--white);
+          font-weight: 900;
+          font-size: 36px;
+          text-align: center;
+          padding: 0 20px;
+        }
+        .big-promo-item.mtn {
           color: #FFCC00;
         }
-        .promo-text.airtel {
+        .big-promo-item.airtel {
           color: #FF0000;
         }
-        @keyframes slide {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
+        @keyframes big-slide {
+          0%, 25% { transform: translateX(0); }
+          25.01%, 50% { transform: translateX(-25%); }
+          50.01%, 75% { transform: translateX(-50%); }
+          75.01%, 100% { transform: translateX(-75%); }
+        }
+        @media (max-width: 768px) {
+          .big-promo-item {
+            font-size: 24px;
+          }
+          .big-promo-slider-container {
+            height: 80px;
+          }
         }
         .section-cta-top {
           display: flex;
