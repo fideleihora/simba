@@ -433,6 +433,27 @@
   color: var(--white);
 }
 
+.nav-branches-btn {
+  background-color: var(--secondary);
+  color: var(--dark);
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 900;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.nav-branches-btn:hover {
+  background-color: var(--primary);
+  color: var(--white);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
 .service-links {
   display: flex;
   gap: 30px;

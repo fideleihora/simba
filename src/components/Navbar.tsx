@@ -376,6 +376,11 @@ const Navbar: React.FC<NavbarProps> = ({
               </div>
             )}
           </div>
+
+          <button className="nav-branches-btn" onClick={onBranchesOpen}>
+            <MapPin size={18} />
+            {t('ourBranches')}
+          </button>
           
           <div className="nav-promo-slider-container">
             <div className="nav-promo-slider">
