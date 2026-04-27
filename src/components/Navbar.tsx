@@ -42,13 +42,18 @@ const Navbar: React.FC<NavbarProps> = ({
 
   const userTransactionsCount = transactions.filter(t => t.userId === user?.id).length;
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
+  const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const langRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setIsCategoryMenuOpen(false);
+      }
+      if (langRef.current && !langRef.current.contains(event.target as Node)) {
+        setIsLangMenuOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -59,6 +64,11 @@ const Navbar: React.FC<NavbarProps> = ({
     onSelectCategory(category);
     setIsCategoryMenuOpen(false);
     setIsMobileMenuOpen(false);
+  };
+
+  const handleLanguageSelect = (lang: 'en' | 'rw' | 'fr') => {
+    setLanguage(lang);
+    setIsLangMenuOpen(false);
   };
 
   const toggleMobileMenu = () => {
@@ -205,28 +215,38 @@ const Navbar: React.FC<NavbarProps> = ({
           <div className="utility-left">
             <span><MapPin size={14} /> {t('location')}</span>
             <span><Phone size={14} /> +250 788 000 000</span>
-            <div className="language-switcher">
+            <div className="language-dropdown-container" ref={langRef}>
               <button 
-                className={`lang-btn ${language === 'en' ? 'active' : ''}`}
-                onClick={() => setLanguage('en')}
-                title="English"
+                className={`lang-dropdown-btn ${isLangMenuOpen ? 'open' : ''}`}
+                onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
               >
-                🇺🇸 EN
+                <Globe size={14} />
+                {language === 'en' ? 'EN' : language === 'rw' ? 'RW' : 'FR'}
+                <ChevronDown size={12} className={`chevron ${isLangMenuOpen ? 'rotate' : ''}`} />
               </button>
-              <button 
-                className={`lang-btn ${language === 'rw' ? 'active' : ''}`}
-                onClick={() => setLanguage('rw')}
-                title="Kinyarwanda"
-              >
-                🇷🇼 RW
-              </button>
-              <button 
-                className={`lang-btn ${language === 'fr' ? 'active' : ''}`}
-                onClick={() => setLanguage('fr')}
-                title="Français"
-              >
-                🇫🇷 FR
-              </button>
+
+              {isLangMenuOpen && (
+                <div className="lang-dropdown-menu">
+                  <button 
+                    className={`lang-dropdown-item ${language === 'en' ? 'active' : ''}`}
+                    onClick={() => handleLanguageSelect('en')}
+                  >
+                    🇺🇸 English
+                  </button>
+                  <button 
+                    className={`lang-dropdown-item ${language === 'rw' ? 'active' : ''}`}
+                    onClick={() => handleLanguageSelect('rw')}
+                  >
+                    🇷🇼 Kinyarwanda
+                  </button>
+                  <button 
+                    className={`lang-dropdown-item ${language === 'fr' ? 'active' : ''}`}
+                    onClick={() => handleLanguageSelect('fr')}
+                  >
+                    🇫🇷 Français
+                  </button>
+                </div>
+              )}
             </div>
           </div>
           <div className="utility-right">

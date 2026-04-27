@@ -26,6 +26,10 @@ const translations: Translations = {
   restaurant: { en: 'Restaurant', rw: 'Resitora', fr: 'Restaurant' },
   promotions: { en: 'Promotions', rw: 'Gahunda', fr: 'Promotions' },
   newArrivals: { en: 'New Arrivals', rw: 'Ibishya', fr: 'Nouveautés' },
+  language: { en: 'Language', rw: 'Ururimi', fr: 'Langue' },
+  settings: { en: 'Settings', rw: 'Igenamiterere', fr: 'Paramètres' },
+  darkMode: { en: 'Dark Mode', rw: 'Uburyo bwijimye', fr: 'Mode Sombre' },
+  lightMode: { en: 'Light Mode', rw: 'Uburyo bwaka', fr: 'Mode Clair' },
 
   // Hero
   promoBadge: { en: 'Big Savings This Week', rw: 'Igabanyuka ridasanzwe', fr: 'Grosses Économies' },
