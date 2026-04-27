@@ -18,6 +18,8 @@ interface NavbarProps {
   onSelectCategory: (category: string | null) => void;
   selectedCategory: string | null;
   onHistoryOpen: () => void;
+  onDashboardOpen: () => void;
+  onGroqOpen: () => void;
   onLogoClick: () => void;
 }
 
@@ -32,6 +34,8 @@ const Navbar: React.FC<NavbarProps> = ({
   onSelectCategory,
   selectedCategory,
   onHistoryOpen,
+  onDashboardOpen,
+  onGroqOpen,
   onLogoClick
 }) => {
   const { cartCount, transactions } = useCart();
@@ -78,6 +82,14 @@ const Navbar: React.FC<NavbarProps> = ({
   const handleHistoryClick = () => {
     if (isAuthenticated) {
       onHistoryOpen();
+    } else {
+      onAuthOpen('signin');
+    }
+  };
+
+  const handleProfileClick = () => {
+    if (isAuthenticated) {
+      onDashboardOpen();
     } else {
       onAuthOpen('signin');
     }
@@ -183,7 +195,10 @@ const Navbar: React.FC<NavbarProps> = ({
                 </>
               ) : (
                 <>
-                  <button onClick={() => { onFavoritesToggle(); toggleMobileMenu(); }}>
+                  <button onClick={() => { onDashboardOpen(); toggleMobileMenu(); }}>
+                    📊 {user?.role === 'customer' ? 'My Account' : 'Admin Dashboard'}
+                  </button>
+                  <button onClick={() => { onFavoritesToggle(); toggleMobileMenu(); }} style={{marginTop: '8px'}}>
                     ❤️ {t('favorites') || 'Favorites'} ({favoritesCount})
                   </button>
                   <button onClick={() => { handleHistoryClick(); toggleMobileMenu(); }} style={{marginTop: '8px'}}>
@@ -291,6 +306,9 @@ const Navbar: React.FC<NavbarProps> = ({
               value={searchTerm}
               onChange={(e) => onSearch(e.target.value)}
             />
+            <button className="groq-trigger-btn" onClick={onGroqOpen} title="AI Conversational Search">
+              <Sparkles size={20} />
+            </button>
             <button className="search-btn">
               <Search size={20} />
             </button>
@@ -318,9 +336,9 @@ const Navbar: React.FC<NavbarProps> = ({
               </div>
               <span className="action-label">{t('cart')}</span>
             </button>
-            <button className="nav-action-item profile-btn" onClick={() => !isAuthenticated && onAuthOpen('signin')}>
+            <button className="nav-action-item profile-btn" onClick={handleProfileClick}>
               <User size={24} />
-              <span className="action-label">{isAuthenticated ? user?.fullName.split(' ')[0] : t('account')}</span>
+              <span className="action-label">{isAuthenticated ? (user?.role === 'customer' ? 'Account' : 'Dashboard') : t('account')}</span>
             </button>
           </div>
         </div>

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { X, User, Mail, Phone, Lock, ArrowRight, Loader2, AlertCircle, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
+import { X, User, Mail, Phone, Lock, ArrowRight, Loader2, AlertCircle, Eye, EyeOff, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
+import { UserRole } from '../types';
 import './AuthModal.css';
 
 interface AuthModalProps {
@@ -16,7 +17,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 's
     fullName: '',
     phoneNumber: '',
     email: '',
-    password: ''
+    password: '',
+    role: 'customer' as UserRole
   });
   const [rememberMe, setRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
@@ -29,10 +31,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 's
 
   if (!isOpen) return null;
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
     if (type === 'checkbox') {
-      setRememberMe(checked);
+      setRememberMe((e.target as HTMLInputElement).checked);
     } else {
       setFormData({ ...formData, [name]: value });
     }
@@ -50,7 +52,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 's
           fullName: formData.fullName,
           phoneNumber: formData.phoneNumber,
           email: formData.email,
-          password: formData.password
+          password: formData.password,
+          role: formData.role
         }, rememberMe);
       } else {
         await login(formData.phoneNumber, formData.password, rememberMe);
@@ -101,21 +104,41 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 's
 
             <form className="auth-form" onSubmit={handleSubmit}>
               {mode === 'signup' && (
-                <div className="form-group">
-                  <label>Full Name</label>
-                  <div className="input-wrapper">
-                    <User size={18} className="input-icon" />
-                    <input 
-                      type="text" 
-                      name="fullName"
-                      placeholder="John Doe" 
-                      value={formData.fullName}
-                      onChange={handleChange}
-                      required 
-                      autoFocus={mode === 'signup'}
-                    />
+                <>
+                  <div className="form-group">
+                    <label>Account Type</label>
+                    <div className="input-wrapper">
+                      <ShieldCheck size={18} className="input-icon" />
+                      <select 
+                        name="role" 
+                        className="role-select"
+                        value={formData.role}
+                        onChange={handleChange}
+                        required
+                      >
+                        <option value="customer">Customer</option>
+                        <option value="branch_manager">Branch Manager</option>
+                        <option value="CEO">CEO</option>
+                      </select>
+                    </div>
                   </div>
-                </div>
+
+                  <div className="form-group">
+                    <label>Full Name</label>
+                    <div className="input-wrapper">
+                      <User size={18} className="input-icon" />
+                      <input 
+                        type="text" 
+                        name="fullName"
+                        placeholder="John Doe" 
+                        value={formData.fullName}
+                        onChange={handleChange}
+                        required 
+                        autoFocus={mode === 'signup'}
+                      />
+                    </div>
+                  </div>
+                </>
               )}
 
               <div className="form-group">

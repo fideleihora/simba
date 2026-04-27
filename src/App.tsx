@@ -19,6 +19,8 @@ import TransactionModal from './components/TransactionModal';
 import ContactForm from './components/ContactForm';
 import FavoritesDrawer from './components/FavoritesDrawer';
 import BranchesModal from './components/BranchesModal';
+import DashboardModal from './components/DashboardModal';
+import GroqSearch from './components/GroqSearch';
 
 const AppContent: React.FC = () => {
   const { t } = useLanguage();
@@ -46,6 +48,8 @@ const AppContent: React.FC = () => {
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isBranchSelectionOpen, setIsBranchSelectionOpen] = useState(false);
+  const [isDashboardOpen, setIsDashboardOpen] = useState(false);
+  const [isGroqOpen, setIsGroqOpen] = useState(false);
   const [selectedBranch, setSelectedBranchName] = useState<string>('');
   const [authModal, setAuthModal] = useState<{ isOpen: boolean; mode: 'signin' | 'signup' }>({
     isOpen: false,
@@ -107,6 +111,8 @@ const AppContent: React.FC = () => {
         }}
         selectedCategory={selectedCategory}
         onHistoryOpen={() => setIsHistoryOpen(true)}
+        onDashboardOpen={() => setIsDashboardOpen(true)}
+        onGroqOpen={() => setIsGroqOpen(true)}
         onLogoClick={handleLogoClick}
       />
       
@@ -199,6 +205,16 @@ const AppContent: React.FC = () => {
         onClose={() => setIsPaymentOpen(false)}
         amount={cartTotal}
         selectedBranch={selectedBranch}
+      />
+
+      <DashboardModal
+        isOpen={isDashboardOpen}
+        onClose={() => setIsDashboardOpen(false)}
+      />
+
+      <GroqSearch
+        isOpen={isGroqOpen}
+        onClose={() => setIsGroqOpen(false)}
       />
 
       <FavoritesDrawer

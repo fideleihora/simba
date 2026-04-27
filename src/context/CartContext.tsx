@@ -10,7 +10,8 @@ interface CartContextType {
   cartTotal: number;
   cartCount: number;
   transactions: Transaction[];
-  recordTransaction: (userId: string, pickupBranch?: string) => void;
+  recordTransaction: (userId: string, pickupBranch?: string, depositPaid?: number) => void;
+  updateTransactionStatus: (transactionId: string, status: Transaction['status']) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -62,7 +63,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const clearCart = () => setCart([]);
 
-  const recordTransaction = (userId: string, pickupBranch?: string) => {
+  const updateTransactionStatus = (transactionId: string, status: Transaction['status']) => {
+    setTransactions(prev => prev.map(tr => 
+      tr.id === transactionId ? { ...tr, status } : tr
+    ));
+  };
+
+  const recordTransaction = (userId: string, pickupBranch?: string, depositPaid: number = 0) => {
     if (cart.length === 0) return;
 
     const newTransaction: Transaction = {
@@ -71,8 +78,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       date: new Date().toISOString(),
       items: [...cart],
       total: cartTotal,
-      status: 'completed',
+      status: 'pending',
       pickupBranch,
+      depositPaid
     };
 
     setTransactions((prev) => [newTransaction, ...prev]);
@@ -94,6 +102,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         cartCount,
         transactions,
         recordTransaction,
+        updateTransactionStatus
       }}
     >
       {children}

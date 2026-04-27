@@ -90,6 +90,26 @@
   color: var(--text-muted);
 }
 
+.input-wrapper select {
+  width: 100%;
+  padding: 14px 16px 14px 48px;
+  background-color: var(--light);
+  border: 2px solid transparent;
+  border-radius: 12px;
+  font-size: 14px;
+  color: var(--text-main);
+  transition: var(--transition);
+  appearance: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.input-wrapper select:focus {
+  border-color: var(--secondary);
+  background-color: var(--white);
+  outline: none;
+}
+
 .input-wrapper input {
   width: 100%;
   padding: 14px 16px 14px 48px;

@@ -28,9 +28,12 @@ export interface Transaction {
   date: string;
   items: TransactionItem[];
   total: number;
-  status: 'completed' | 'pending' | 'failed';
+  status: 'pending' | 'accepted' | 'picked_up' | 'failed' | 'completed';
   pickupBranch?: string;
+  depositPaid: number;
 }
+
+export type UserRole = 'CEO' | 'branch_manager' | 'customer';
 
 export interface User {
   id: string;
@@ -38,6 +41,7 @@ export interface User {
   phoneNumber: string;
   email?: string;
   password?: string; // Only for local storage simulation
+  role: UserRole;
 }
 
 export interface Branch {

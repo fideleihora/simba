@@ -266,6 +266,25 @@
   background-color: var(--primary-hover);
 }
 
+.groq-trigger-btn {
+  background: none;
+  border: none;
+  color: var(--primary);
+  padding: 0 12px;
+  height: 100%;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-left: 1px solid var(--border);
+}
+
+.groq-trigger-btn:hover {
+  color: var(--dark);
+  background-color: var(--primary);
+}
+
 .nav-actions {
   display: flex;
   align-items: center;

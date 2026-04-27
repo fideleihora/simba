@@ -38,7 +38,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       id: `USR-${Date.now()}`
     };
 
-    setUsers(prev => [...prev, newUser]);
+    setUsers(prev => {
+      const updated = [...prev, newUser];
+      localStorage.setItem('simba-users', JSON.stringify(updated));
+      return updated;
+    });
     setUser(newUser);
 
     if (rememberMe) {
