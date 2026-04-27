@@ -141,6 +141,30 @@
   border-color: var(--primary);
 }
 
+.branch-card.selectable {
+  cursor: pointer;
+}
+
+.branch-card.selectable:hover {
+  background-color: #fff9db;
+  border-color: var(--secondary);
+}
+
+.select-branch-btn {
+  background-color: var(--primary);
+  color: var(--white);
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 14px;
+  transition: var(--transition);
+}
+
+.branch-card.selectable:hover .select-branch-btn {
+  background-color: var(--secondary);
+  color: var(--dark);
+}
+
 @media (max-width: 600px) {
   .branches-modal {
     max-height: 95vh;

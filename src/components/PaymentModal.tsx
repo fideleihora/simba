@@ -9,27 +9,14 @@ interface PaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
   amount: number;
+  selectedBranch: string;
 }
 
-const branches = [
-  'Simba City Center (UTC)',
-  'Simba Gishushu',
-  'Simba Nyarutarama',
-  'Simba Kimihurura',
-  'Simba Kimironko',
-  'Simba Nyamirambo',
-  'Simba Kicukiro',
-  'Simba Kanombe',
-  'Simba Gisozi',
-  'Simba Gisenyi',
-];
-
-const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, amount }) => {
+const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, amount, selectedBranch }) => {
   const { t } = useLanguage();
   const { recordTransaction } = useCart();
   const { user } = useAuth();
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [selectedBranch, setSelectedBranch] = useState(branches[0]);
   const [status, setStatus] = useState<'idle' | 'processing' | 'success'>('idle');
 
   if (!isOpen) return null;
@@ -87,27 +74,15 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, amount }) 
               <h2>{t('momoTitle')}</h2>
             </div>
 
+            <div className="selected-branch-banner">
+              <MapPin size={18} />
+              <span>Pickup at: <strong>{selectedBranch}</strong></span>
+            </div>
+
             <form className="payment-form" onSubmit={handlePayment}>
               <div className="amount-display">
                 <label>{t('amountToPay')}</label>
                 <div className="total-value">{formatPrice(amount)}</div>
-              </div>
-
-              <div className="form-group">
-                <label>Select Pickup Branch</label>
-                <div className="input-wrapper">
-                  <MapPin size={18} className="input-icon" />
-                  <select 
-                    className="branch-select"
-                    value={selectedBranch}
-                    onChange={(e) => setSelectedBranch(e.target.value)}
-                    disabled={status === 'processing'}
-                  >
-                    {branches.map(branch => (
-                      <option key={branch} value={branch}>{branch}</option>
-                    ))}
-                  </select>
-                </div>
               </div>
 
               <div className="form-group">

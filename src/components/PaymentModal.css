@@ -40,7 +40,7 @@
 
 .payment-header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
 .momo-logo-container {
@@ -73,6 +73,23 @@
   margin-top: 15px;
 }
 
+.selected-branch-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #fff9db;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid #ffec99;
+  margin-bottom: 24px;
+  color: var(--dark);
+  font-size: 14px;
+}
+
+.selected-branch-banner strong {
+  color: var(--primary);
+}
+
 .amount-display {
   background-color: var(--light);
   padding: 20px;
@@ -96,18 +113,6 @@
   color: var(--primary);
 }
 
-.branch-select {
-  width: 100%;
-  background: none;
-  border: none;
-  padding: 14px 16px 14px 48px;
-  font-size: 14px;
-  color: var(--text-main);
-  font-weight: 700;
-  cursor: pointer;
-  appearance: none;
-}
-
 .pickup-hint {
   display: flex;
   align-items: center;
@@ -121,7 +126,12 @@
 }
 
 .payment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
 
+.btn-momo {
   background-color: #ffcc00; /* MTN Yellow */
   color: #000;
   height: 64px;
@@ -136,6 +146,9 @@
   justify-content: center;
   gap: 12px;
   width: 100%;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
 }
 
 .btn-momo:hover:not(:disabled) {

@@ -23,7 +23,7 @@ import BranchesModal from './components/BranchesModal';
 const AppContent: React.FC = () => {
   const { t } = useLanguage();
   const { cartTotal, transactions } = useCart();
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const {
     products,
     categories,
@@ -45,6 +45,8 @@ const AppContent: React.FC = () => {
   const [isBranchesOpen, setIsBranchesOpen] = useState(false);
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isBranchSelectionOpen, setIsBranchSelectionOpen] = useState(false);
+  const [selectedBranch, setSelectedBranchName] = useState<string>('');
   const [authModal, setAuthModal] = useState<{ isOpen: boolean; mode: 'signin' | 'signup' }>({
     isOpen: false,
     mode: 'signin'
@@ -69,6 +71,21 @@ const AppContent: React.FC = () => {
     setSelectedCategory(null);
     setSearchTerm('');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCheckout = () => {
+    if (isAuthenticated) {
+      setIsCartOpen(false);
+      setIsBranchSelectionOpen(true);
+    } else {
+      setAuthModal({ isOpen: true, mode: 'signin' });
+    }
+  };
+
+  const handleBranchSelect = (branchName: string) => {
+    setSelectedBranchName(branchName);
+    setIsBranchSelectionOpen(false);
+    setIsPaymentOpen(true);
   };
 
   return (
@@ -166,7 +183,7 @@ const AppContent: React.FC = () => {
       <CartDrawer
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
-        onPaymentOpen={() => setIsPaymentOpen(true)}
+        onPaymentOpen={handleCheckout}
         onAuthOpen={handleAuthOpen}
       />
 
@@ -181,6 +198,7 @@ const AppContent: React.FC = () => {
         isOpen={isPaymentOpen}
         onClose={() => setIsPaymentOpen(false)}
         amount={cartTotal}
+        selectedBranch={selectedBranch}
       />
 
       <FavoritesDrawer
@@ -191,6 +209,13 @@ const AppContent: React.FC = () => {
       <BranchesModal
         isOpen={isBranchesOpen}
         onClose={() => setIsBranchesOpen(false)}
+      />
+
+      <BranchesModal
+        isOpen={isBranchSelectionOpen}
+        onClose={() => setIsBranchSelectionOpen(false)}
+        selectionMode={true}
+        onSelect={handleBranchSelect}
       />
 
       <TransactionModal
