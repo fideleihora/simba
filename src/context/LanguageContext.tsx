@@ -26,6 +26,7 @@ const translations: Translations = {
   restaurant: { en: 'Restaurant', rw: 'Resitora', fr: 'Restaurant' },
   promotions: { en: 'Promotions', rw: 'Gahunda', fr: 'Promotions' },
   newArrivals: { en: 'New Arrivals', rw: 'Ibishya', fr: 'Nouveautés' },
+  ourBranches: { en: 'Our Branches', rw: 'Amashami Yacu', fr: 'Nos Succursales' },
   language: { en: 'Language', rw: 'Ururimi', fr: 'Langue' },
   settings: { en: 'Settings', rw: 'Igenamiterere', fr: 'Paramètres' },
   darkMode: { en: 'Dark Mode', rw: 'Uburyo bwijimye', fr: 'Mode Sombre' },

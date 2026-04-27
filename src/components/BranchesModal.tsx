@@ -11,14 +11,14 @@ interface BranchesModalProps {
 
 const branches: Branch[] = [
   { id: '1', name: 'Simba City Center (UTC)', address: 'Union Trade Centre, 1 KN 4 Ave', city: 'Kigali', phone: '+250 788 000 001' },
-  { id: '2', name: 'Simba Gishushu', address: 'KN 5 Rd', city: 'Kigali', phone: '+250 788 000 002' },
+  { id: '2', name: 'Simba G-Tower', address: 'KN 5 Rd', city: 'Kigali', phone: '+250 788 000 002' },
   { id: '3', name: 'Simba Nyarutarama', address: 'KG 541 St', city: 'Kigali', phone: '+250 788 000 003' },
-  { id: '4', name: 'Simba Kimihurura', address: '24Q5+R2R', city: 'Kigali', phone: '+250 788 000 004' },
-  { id: '5', name: 'Simba Kimironko', address: '342F+3V5, Kimironko', city: 'Kigali', phone: '+250 788 000 005' },
-  { id: '6', name: 'Simba Nyamirambo', address: '23H4+26V', city: 'Kigali', phone: '+250 788 000 006' },
-  { id: '7', name: 'Simba Kicukiro', address: '24G3+MCV', city: 'Kigali', phone: '+250 788 000 007' },
-  { id: '8', name: 'Simba Kanombe', address: 'KK 35 Ave', city: 'Kigali', phone: '+250 788 000 008' },
-  { id: '9', name: 'Simba Gisozi', address: '24J3+Q3', city: 'Kigali', phone: '+250 788 000 009' },
+  { id: '4', name: 'Simba Kimironko', address: '342F+3V5, Kimironko', city: 'Kigali', phone: '+250 788 000 005' },
+  { id: '5', name: 'Simba Kicukiro', address: 'KG 192 St', city: 'Kigali', phone: '+250 788 000 007' },
+  { id: '6', name: 'Simba Nyamirambo', address: 'Near Cosmos, Nyamirambo', city: 'Kigali', phone: '+250 788 000 006' },
+  { id: '7', name: 'Simba Remera', address: '24G3+MCV', city: 'Kigali', phone: '+250 788 000 008' },
+  { id: '8', name: 'Simba Kagarama', address: 'KK 35 Ave', city: 'Kigali', phone: '+250 788 000 004' },
+  { id: '9', name: 'Simba Gikondo', address: '24J3+Q3', city: 'Kigali', phone: '+250 788 000 009' },
   { id: '10', name: 'Simba Gisenyi', address: '8754+P7W', city: 'Gisenyi', phone: '+250 788 000 010' },
 ];
 
