@@ -7,6 +7,7 @@ interface AuthContextType {
   register: (user: Omit<User, 'id'>, rememberMe: boolean) => Promise<void>;
   login: (phoneNumber: string, password?: string, rememberMe?: boolean) => Promise<void>;
   logout: () => void;
+  getRequiredDeposit: () => number;
   isAuthenticated: boolean;
 }
 
@@ -30,6 +31,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     localStorage.setItem('simba-users', JSON.stringify(users));
   }, [users]);
+
+  const getRequiredDeposit = () => {
+    if (!user) return 0;
+    // Base deposit is 2000 RWF. If user has no-show flags, increase it.
+    const flags = user.noShowFlags || 0;
+    if (flags === 0) return 0; // Trusted user
+    return 2000 + (flags * 1000);
+  };
 
   const register = async (userData: Omit<User, 'id'>, rememberMe: boolean) => {
     const existing = users.find(u => u.phoneNumber === userData.phoneNumber);
@@ -77,7 +86,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, users, register, login, logout, isAuthenticated: !!user }}>
+    <AuthContext.Provider value={{ user, users, register, login, logout, getRequiredDeposit, isAuthenticated: !!user }}>
       {children}
     </AuthContext.Provider>
   );

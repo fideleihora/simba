@@ -24,6 +24,7 @@ export const useProducts = () => {
 
   return {
     products: filteredProducts,
+    allProducts: productData.products,
     categories,
     searchTerm,
     setSearchTerm,

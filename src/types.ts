@@ -28,10 +28,11 @@ export interface Transaction {
   date: string;
   items: TransactionItem[];
   total: number;
-  status: 'pending' | 'accepted' | 'picked_up' | 'failed' | 'completed';
+  status: 'pending' | 'accepted' | 'preparing' | 'ready' | 'picked_up' | 'failed' | 'completed';
   pickupBranch?: string;
   pickupTime?: string;
   depositPaid: number;
+  assignedStaffId?: string;
   review?: {
     rating: number;
     comment: string;
@@ -39,7 +40,7 @@ export interface Transaction {
   };
 }
 
-export type UserRole = 'CEO' | 'branch_manager' | 'customer';
+export type UserRole = 'CEO' | 'branch_manager' | 'branch_staff' | 'customer';
 
 export interface User {
   id: string;

@@ -31,6 +31,7 @@ const DashboardModal: React.FC<DashboardModalProps> = ({ isOpen, onClose }) => {
   const isCEO = user.role === 'CEO';
 
   const userTransactions = transactions.filter(tr => tr.userId === user.id);
+  const totalSpent = useMemo(() => userTransactions.reduce((acc, tr) => acc + tr.total, 0), [userTransactions]);
   
   const branchMapping: Record<string, string> = {
     'Simba City Center (UTC)': '1',
