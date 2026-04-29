@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { BranchProduct, Product } from '../types';
 import productDataRaw from '../data/simba_products.json';
+import { branches as branchData } from '../data/branches';
 
 const allProducts = (productDataRaw as any).products as Product[];
 
@@ -14,20 +15,16 @@ interface StockContextType {
 
 const StockContext = createContext<StockContextType | undefined>(undefined);
 
-const branches = [
-  '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'
-];
-
 export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [branchStock, setBranchStock] = useState<BranchProduct[]>(() => {
     const saved = localStorage.getItem('simba-branch-stock');
     if (saved) return JSON.parse(saved);
 
     const initialStock: BranchProduct[] = [];
-    branches.forEach(branchId => {
+    branchData.forEach(branch => {
       allProducts.forEach(product => {
         initialStock.push({
-          branchId,
+          branchId: branch.id,
           productId: product.id,
           stockLevel: Math.floor(Math.random() * 50) + 10
         });

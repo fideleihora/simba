@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { X, User, Mail, Phone, Lock, ArrowRight, Loader2, AlertCircle, Eye, EyeOff, CheckCircle2, ShieldCheck, ArrowLeft, MapPin } from 'lucide-react';
+import { X, User, Mail, Phone, Lock, ArrowRight, Loader2, AlertCircle, Eye, EyeOff, CheckCircle2, ShieldCheck, ArrowLeft, MapPin, PieChart, ClipboardList } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { UserRole } from '../types';
+import { branches } from '../data/branches';
 import './AuthModal.css';
 
 interface AuthModalProps {
@@ -10,19 +11,6 @@ interface AuthModalProps {
   onClose: () => void;
   initialMode?: 'signin' | 'signup' | 'forgot';
 }
-
-const branches = [
-  { id: '1', name: 'Simba City Center (UTC)' },
-  { id: '2', name: 'Simba Gishushu' },
-  { id: '3', name: 'Simba Nyarutarama' },
-  { id: '4', name: 'Simba Kimironko' },
-  { id: '5', name: 'Simba Kicukiro' },
-  { id: '6', name: 'Simba Nyamirambo' },
-  { id: '7', name: 'Simba Kimihurura' },
-  { id: '8', name: 'Simba Kanombe' },
-  { id: '9', name: 'Simba Gisozi' },
-  { id: '10', name: 'Simba Gisenyi' },
-];
 
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'signin' }) => {
   const [mode, setMode] = useState<'signin' | 'signup' | 'forgot'>(initialMode);
@@ -41,7 +29,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 's
   const [loading, setLoading] = useState(false);
   
   const { t } = useLanguage();
-  const { login, register } = useAuth();
+  const { login, register, users } = useAuth();
 
   if (!isOpen) return null;
 
@@ -97,6 +85,36 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 's
     }
   };
 
+  const handleDemoLogin = async (role: UserRole) => {
+    setLoading(true);
+    setError(null);
+    try {
+      // Find if a demo user already exists for this role
+      let demoUser = users.find(u => u.role === role);
+      
+      if (!demoUser) {
+        // Create a demo user if it doesn't exist
+        const demoData = {
+          fullName: `Demo ${role.replace('_', ' ')}`,
+          phoneNumber: role === 'customer' ? '0780000000' : (role === 'branch_manager' ? '0781111111' : '0782222222'),
+          password: 'password123',
+          role: role,
+          assignedBranchId: role === 'customer' ? undefined : '1'
+        };
+        await register(demoData, true);
+      } else {
+        await login(demoUser.phoneNumber, demoUser.password, true);
+      }
+      
+      setIsSuccess(true);
+      setTimeout(() => onClose(), 1500);
+    } catch (err: any) {
+      setError('Demo login failed. Please try normal sign up.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="auth-overlay glass-effect" onClick={onClose}>
       <div className="auth-modal glass-effect animate-fade-in" onClick={(e) => e.stopPropagation()}>
@@ -129,12 +147,28 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 's
               <h2>{mode === 'signin' ? t('signIn') : (mode === 'signup' ? t('signUp') : 'Reset Password')}</h2>
               <p>
                 {mode === 'signin' 
-                  ? 'Welcome back! Please enter your details.' 
-                  : (mode === 'signup' 
-                    ? 'Create your Simba account to start shopping.' 
-                    : 'Enter your email to receive a password reset link.')}
+                  ? 'Welcome back! Choose your role to continue.' 
+                  : 'Create your account or use a demo role below.'}
               </p>
             </div>
+
+            {/* Quick Access Demo Roles */}
+            <div className="demo-roles-container">
+              <p className="demo-label">Quick Access / Demo Login:</p>
+              <div className="demo-grid">
+                <button className="demo-btn customer" onClick={() => handleDemoLogin('customer')}>
+                  <User size={16} /> <span>Customer</span>
+                </button>
+                <button className="demo-btn manager" onClick={() => handleDemoLogin('branch_manager')}>
+                  <ShieldCheck size={16} /> <span>Manager</span>
+                </button>
+                <button className="demo-btn ceo" onClick={() => handleDemoLogin('CEO')}>
+                  <PieChart size={16} /> <span>CEO</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="auth-divider"><span>OR CONTINUE WITH FORM</span></div>
 
             {error && (
               <div className="auth-error">
@@ -147,21 +181,24 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 's
               {mode === 'signup' && (
                 <>
                   <div className="form-group">
-                    <label>Account Type</label>
-                    <div className="input-wrapper">
-                      <ShieldCheck size={18} className="input-icon" />
-                      <select 
-                        name="role" 
-                        className="role-select"
-                        value={formData.role}
-                        onChange={handleChange}
-                        required
-                      >
-                        <option value="customer">Customer</option>
-                        <option value="branch_manager">Branch Manager</option>
-                        <option value="branch_staff">Branch Staff</option>
-                        <option value="CEO">CEO</option>
-                      </select>
+                    <label>Select Your Role</label>
+                    <div className="role-selector-cards">
+                      {[
+                        { id: 'customer', label: 'Customer', icon: <User size={18} /> },
+                        { id: 'branch_manager', label: 'Manager', icon: <ShieldCheck size={18} /> },
+                        { id: 'branch_staff', label: 'Staff', icon: <ClipboardList size={18} /> },
+                        { id: 'CEO', label: 'CEO', icon: <PieChart size={18} /> }
+                      ].map(roleItem => (
+                        <button
+                          key={roleItem.id}
+                          type="button"
+                          className={`role-card ${formData.role === roleItem.id ? 'active' : ''}`}
+                          onClick={() => setFormData({ ...formData, role: roleItem.id as UserRole })}
+                        >
+                          {roleItem.icon}
+                          <span>{roleItem.label}</span>
+                        </button>
+                      ))}
                     </div>
                   </div>
 

@@ -357,3 +357,108 @@
     font-size: 24px;
   }
 }
+
+/* Role Selection & Demo Styles */
+.demo-roles-container {
+  margin-bottom: 24px;
+}
+
+.demo-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: center;
+}
+
+.demo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.demo-btn {
+  padding: 12px 8px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background-color: var(--white);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--text-main);
+}
+
+.demo-btn svg {
+  color: var(--primary);
+}
+
+.demo-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: var(--primary);
+  background-color: var(--light);
+}
+
+.role-selector-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.role-card {
+  padding: 14px 12px;
+  border-radius: 12px;
+  border: 2px solid var(--border);
+  background-color: var(--white);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  transition: all 0.2s ease;
+  color: var(--text-main);
+  text-align: left;
+}
+
+.role-card svg {
+  color: var(--text-muted);
+}
+
+.role-card.active {
+  border-color: var(--primary);
+  background-color: rgba(0, 74, 173, 0.05);
+  color: var(--primary);
+}
+
+.role-card.active svg {
+  color: var(--primary);
+}
+
+.role-card:hover:not(.active) {
+  border-color: #ced4da;
+  background-color: var(--light);
+}
+
+.back-btn {
+  position: absolute;
+  left: 20px;
+  top: 24px;
+  background: none;
+  color: var(--text-muted);
+  padding: 8px;
+  border-radius: 50%;
+  transition: var(--transition);
+}
+
+.back-btn:hover {
+  background-color: var(--light);
+  color: var(--primary);
+}
