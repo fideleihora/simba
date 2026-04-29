@@ -61,6 +61,24 @@
   display: inline-flex;
 }
 
+.start-shopping-btn {
+  background-color: var(--secondary);
+  color: var(--dark);
+  padding: 16px 40px;
+  font-size: 18px;
+  font-weight: 800;
+  border-radius: var(--radius);
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+  transition: all 0.3s ease;
+  letter-spacing: 1px;
+}
+
+.start-shopping-btn:hover {
+  background-color: var(--secondary-hover);
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 25px rgba(255, 215, 0, 0.5);
+}
+
 .banner-image {
   flex: 1;
   position: relative;
