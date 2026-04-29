@@ -1,11 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User } from '../types';
+import { User, UserRole } from '../types';
 
 interface AuthContextType {
   user: User | null;
   users: User[];
   register: (user: Omit<User, 'id'>, rememberMe: boolean) => Promise<void>;
-  login: (phoneNumber: string, password?: string, rememberMe?: boolean) => Promise<void>;
+  login: (phoneNumber: string, password: string, role: UserRole, rememberMe?: boolean) => Promise<void>;
   logout: () => void;
   getRequiredDeposit: () => number;
   isAuthenticated: boolean;
@@ -64,11 +64,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const login = async (phoneNumber: string, password?: string, rememberMe: boolean = false) => {
-    const foundUser = users.find(u => u.phoneNumber === phoneNumber && u.password === password);
+  const login = async (phoneNumber: string, password: string, role: UserRole, rememberMe: boolean = false) => {
+    const foundUser = users.find(u => 
+      u.phoneNumber === phoneNumber && 
+      u.password === password && 
+      u.role === role
+    );
     
     if (!foundUser) {
-      throw new Error('Invalid phone number or password.');
+      throw new Error('Invalid phone number, password, or role.');
     }
 
     setUser(foundUser);

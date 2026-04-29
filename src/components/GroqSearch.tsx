@@ -1,6 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Send, Bot, Sparkles, Search, Loader2, MessageSquare, User, AlertCircle } from 'lucide-react';
+import { X, Send, Bot, Sparkles, Search, Loader2, MessageSquare, User, AlertCircle, ShoppingCart, Plus, Check, MapPin, Package, CreditCard, Trash2 } from 'lucide-react';
 import { useProducts } from '../hooks/useProducts';
+import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
+import { Product } from '../types';
+import { branches } from '../data/branches';
 import './GroqSearch.css';
 
 interface Message {
@@ -11,20 +15,22 @@ interface Message {
 interface GroqSearchProps {
   isOpen: boolean;
   onClose: () => void;
+  onCartOpen?: () => void;
 }
 
-// In a real production app, NEVER expose your API key like this.
-// For this project, we'll use a placeholder or check localStorage.
 const GROQ_API_KEY = (import.meta as any).env?.VITE_GROQ_API_KEY || localStorage.getItem('GROQ_API_KEY') || '';
 
-const GroqSearch: React.FC<GroqSearchProps> = ({ isOpen, onClose }) => {
+const GroqSearch: React.FC<GroqSearchProps> = ({ isOpen, onClose, onCartOpen }) => {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: 'Hello! I am your Simba AI assistant. I have access to our entire product catalog. How can I help you find what you need today?' }
+    { role: 'assistant', content: 'Hello! I am your Simba AI assistant. I can help you find products, suggest recipes, or answer any questions about our supermarket. How can I help you today?' }
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { products } = useProducts();
+  const [addedItems, setAddedItems] = useState<number[]>([]);
+  const { allProducts } = useProducts();
+  const { addToCart, cart, cartTotal, transactions, clearCart } = useCart();
+  const { user, isAuthenticated } = useAuth();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -33,20 +39,51 @@ const GroqSearch: React.FC<GroqSearchProps> = ({ isOpen, onClose }) => {
 
   useEffect(() => {
     if (isOpen) {
-      scrollToBottom();
+      setTimeout(scrollToBottom, 100);
     }
   }, [messages, isOpen, isLoading]);
 
   if (!isOpen) return null;
 
+  const handleAction = (action: string) => {
+    switch (action) {
+      case 'CLEAR_CART':
+        clearCart();
+        setMessages(prev => [...prev, { role: 'assistant', content: 'I have cleared your shopping cart as requested.' }]);
+        break;
+      case 'GO_TO_CHECKOUT':
+        onClose();
+        if (onCartOpen) onCartOpen();
+        break;
+      default:
+        break;
+    }
+  };
+
+  const localSearchFallback = (query: string): string => {
+    const searchTerms = query.toLowerCase().split(' ');
+    const matchedProducts = allProducts.filter(p => 
+      searchTerms.some(term => 
+        p.name.toLowerCase().includes(term) || 
+        p.category.toLowerCase().includes(term)
+      )
+    ).slice(0, 5);
+
+    if (matchedProducts.length === 0) {
+      return "I couldn't find any products matching your search in our catalog. Would you like to try searching for something else, like 'fruit', 'milk', or 'heaters'?";
+    }
+
+    let response = `I found some products that might match what you're looking for:\n\n`;
+    matchedProducts.forEach(p => {
+      response += `- **${p.name}**: ${p.price.toLocaleString()} RWF (${p.category}) [ID:${p.id}]\n`;
+    });
+    response += `\nI'm currently in 'Offline Mode' because no API key was found, but I can still help you browse the catalog!`;
+    return response;
+  };
+
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
-
-    if (!GROQ_API_KEY) {
-      setError("Groq API Key not found. Please set VITE_GROQ_API_KEY in your .env file.");
-      return;
-    }
 
     const userMessage = input.trim();
     setInput('');
@@ -55,27 +92,68 @@ const GroqSearch: React.FC<GroqSearchProps> = ({ isOpen, onClose }) => {
     setIsLoading(true);
     setError(null);
 
+    // If no API key, use fallback immediately
+    if (!GROQ_API_KEY) {
+      setTimeout(() => {
+        const fallbackContent = localSearchFallback(userMessage);
+        setMessages(prev => [...prev, { role: 'assistant', content: fallbackContent }]);
+        setIsLoading(false);
+      }, 800);
+      return;
+    }
+
     try {
-      // Prepare context: A simplified version of the catalog to save tokens
-      const catalogContext = products.map(p => 
-        `- ${p.name} (${p.category}): ${p.price} RWF, In Stock: ${p.inStock ? 'Yes' : 'No'}`
+      const catalogContext = allProducts.map(p => 
+        `ID:${p.id} | ${p.name} | ${p.category} | ${p.price} RWF | ${p.inStock ? 'In Stock' : 'Out of Stock'}`
       ).join('\n');
+
+      const userContext = isAuthenticated ? `
+        CURRENT USER: ${user?.fullName}
+        PHONE: ${user?.phoneNumber}
+        ROLE: ${user?.role}
+      ` : 'USER STATUS: Not Logged In';
+
+      const cartContext = cart.length > 0 ? `
+        CURRENT CART:
+        ${cart.map(item => `- ${item.name} x${item.quantity} (${item.price * item.quantity} RWF)`).join('\n')}
+        TOTAL: ${cartTotal} RWF
+      ` : 'CART STATUS: Empty';
+
+      const transactionContext = transactions.length > 0 ? `
+        RECENT ORDERS:
+        ${transactions.slice(0, 3).map(t => `- ID:${t.id} | Date:${t.date.split('T')[0]} | Total:${t.total} RWF | Status:${t.status}`).join('\n')}
+      ` : 'ORDER HISTORY: None';
+
+      const branchContext = `
+        BRANCH LOCATIONS:
+        ${branches.map(b => `- ${b.name}`).join('\n')}
+      `;
 
       const systemMessage: Message = {
         role: 'system',
-        content: `You are Simba Supermarket AI, a friendly and helpful Rwandese online supermarket assistant. 
-        Your goal is to help users find products from our catalog and provide information.
-        Use the following product catalog as your primary source of truth:
+        content: `You are Simba AI, the official assistant for Simba Supermarket in Rwanda.
         
+        ${userContext}
+        ${cartContext}
+        ${transactionContext}
+        ${branchContext}
+        
+        CATALOG DATA:
         ${catalogContext}
         
-        Guidelines:
-        1. Be polite, friendly and professional.
-        2. If a product is mentioned, confirm if we have it and mention the price.
-        3. If it's NOT in the catalog, politely say we don't carry it yet but suggest alternatives.
-        4. Keep responses concise but helpful.
-        5. Use Markdown for formatting (bold names, list prices).
-        6. You can answer general grocery related questions too.`
+        INSTRUCTIONS:
+        1. Be friendly, helpful, and professional.
+        2. When users ask for products, search the catalog and recommend the most relevant ones.
+        3. ALWAYS mention the price and if it's in stock.
+        4. CRITICAL: To show a product card with an add-to-cart button, include its ID like this: [ID:12345].
+        5. SYSTEM ACTIONS: You can trigger actions by including these tags:
+           - [ACTION:CLEAR_CART] to empty the cart.
+           - [ACTION:GO_TO_CHECKOUT] to open the cart/checkout drawer.
+        6. INFO CARDS: To show information about a branch or order status, you can use these tags:
+           - [BRANCH:Branch Name] to show a branch location card.
+           - [ORDER:OrderID] to show an order status card.
+        7. If asked about order status, check the RECENT ORDERS above and provide the current status.
+        8. Use Markdown for formatting. Keep responses concise.`
       };
 
       const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -86,27 +164,134 @@ const GroqSearch: React.FC<GroqSearchProps> = ({ isOpen, onClose }) => {
         },
         body: JSON.stringify({
           model: 'llama-3.3-70b-versatile',
-          messages: [systemMessage, ...newMessages.filter(m => m.role !== 'system')],
-          temperature: 0.7,
-          max_tokens: 1024
+          messages: [systemMessage, ...newMessages.slice(-7)], // Last 7 messages for context
+          temperature: 0.6,
+          max_tokens: 1000
         })
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error?.message || 'Failed to get response from Groq');
+        throw new Error('API limit reached or connection issue.');
       }
 
       const data = await response.json();
       const assistantContent = data.choices[0].message.content;
+      
+      // Check for actions in the content
+      if (assistantContent.includes('[ACTION:CLEAR_CART]')) {
+        handleAction('CLEAR_CART');
+      }
+      if (assistantContent.includes('[ACTION:GO_TO_CHECKOUT]')) {
+        handleAction('GO_TO_CHECKOUT');
+      }
 
       setMessages(prev => [...prev, { role: 'assistant', content: assistantContent }]);
     } catch (err: any) {
-      console.error('Groq API Error:', err);
-      setError(err.message || "I'm having trouble connecting to my brain right now. Please try again in a moment.");
+      console.error('Groq Error:', err);
+      const fallbackContent = localSearchFallback(userMessage);
+      setMessages(prev => [...prev, { role: 'assistant', content: fallbackContent }]);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleAddToCart = (productId: number) => {
+    const product = allProducts.find(p => p.id === productId);
+    if (product) {
+      addToCart(product);
+      setAddedItems(prev => [...prev, productId]);
+      setTimeout(() => {
+        setAddedItems(prev => prev.filter(id => id !== productId));
+      }, 2000);
+    }
+  };
+
+  const renderMessageContent = (content: string) => {
+    // Clean tags for display
+    let displayContent = content.replace(/\[ACTION:.*?\]/g, '');
+    
+    // Split content by product ID tags [ID:12345], branch [BRANCH:Name], and order [ORDER:ID]
+    const parts = displayContent.split(/(\[ID:\d+\]|\[BRANCH:.*?\]|\[ORDER:.*?\])/g);
+    
+    return (
+      <div className="message-text">
+        {parts.map((part, index) => {
+          // Product ID Match
+          const productMatch = part.match(/\[ID:(\d+)\]/);
+          if (productMatch) {
+            const productId = parseInt(productMatch[1]);
+            const product = allProducts.find(p => p.id === productId);
+            if (!product) return null;
+
+            return (
+              <div key={index} className="chat-product-card">
+                <img src={product.image} alt={product.name} />
+                <div className="chat-product-info">
+                  <span className="name">{product.name}</span>
+                  <span className="price">{product.price.toLocaleString()} RWF</span>
+                </div>
+                <button 
+                  onClick={() => handleAddToCart(productId)}
+                  className={`chat-add-btn ${addedItems.includes(productId) ? 'added' : ''}`}
+                >
+                  {addedItems.includes(productId) ? <Check size={14} /> : <Plus size={14} />}
+                </button>
+              </div>
+            );
+          }
+
+          // Branch Match
+          const branchMatch = part.match(/\[BRANCH:(.*?)\]/);
+          if (branchMatch) {
+            const branchName = branchMatch[1].trim();
+            const branch = branches.find(b => b.name.includes(branchName) || branchName.includes(b.name));
+            if (!branch) return null;
+
+            return (
+              <div key={index} className="chat-info-card branch">
+                <MapPin size={18} className="card-icon" />
+                <div className="card-content">
+                  <span className="title">{branch.name}</span>
+                  <span className="subtitle">Official Simba Supermarket Branch</span>
+                </div>
+              </div>
+            );
+          }
+
+          // Order Match
+          const orderMatch = part.match(/\[ORDER:(.*?)\]/);
+          if (orderMatch) {
+            const orderId = orderMatch[1].trim();
+            const transaction = transactions.find(t => t.id === orderId);
+            if (!transaction) return null;
+
+            return (
+              <div key={index} className="chat-info-card order">
+                <Package size={18} className="card-icon" />
+                <div className="card-content">
+                  <span className="title">Order {transaction.id}</span>
+                  <span className={`status-badge ${transaction.status}`}>{transaction.status.toUpperCase()}</span>
+                  <span className="subtitle">Total: {transaction.total.toLocaleString()} RWF</span>
+                </div>
+              </div>
+            );
+          }
+
+          // Simple Markdown bolding
+          const boldParts = part.split(/(\*\*.*?\*\*)/g);
+          return (
+            <span key={index}>
+              {boldParts.map((bp, i) => {
+                if (bp.startsWith('**') && bp.endsWith('**')) {
+                  return <strong key={i}>{bp.slice(2, -2)}</strong>;
+                }
+                return bp;
+              })}
+            </span>
+          );
+        })}
+      </div>
+    );
   };
 
   return (
@@ -115,37 +300,35 @@ const GroqSearch: React.FC<GroqSearchProps> = ({ isOpen, onClose }) => {
         <div className="groq-header">
           <div className="groq-title">
             <div className="groq-bot-icon">
-              <Bot size={24} />
+              <Sparkles size={20} />
             </div>
             <div>
-              <h3>Simba AI Assistant</h3>
-              <span>Powered by Llama 3.3 70B</span>
+              <h3>Simba AI</h3>
+              <div className="groq-status">
+                <span className="status-dot"></span>
+                <span>Online & Ready</span>
+              </div>
             </div>
           </div>
           <button className="groq-close" onClick={onClose}>
-            <X size={24} />
+            <X size={20} />
           </button>
         </div>
 
         <div className="groq-messages">
           {messages.map((m, i) => (
             <div key={i} className={`message-wrapper ${m.role}`}>
-              <div className="message-avatar">
-                {m.role === 'assistant' ? <Bot size={16} /> : <User size={16} />}
-              </div>
               <div className="message-bubble">
-                <div className="message-text">{m.content}</div>
+                {m.role === 'assistant' ? renderMessageContent(m.content) : m.content}
               </div>
             </div>
           ))}
           {isLoading && (
             <div className="message-wrapper assistant">
-              <div className="message-avatar">
-                <Bot size={16} />
-              </div>
               <div className="message-bubble loading">
-                <Loader2 size={16} className="animate-spin" />
-                Thinking...
+                <div className="typing-indicator">
+                  <span></span><span></span><span></span>
+                </div>
               </div>
             </div>
           )}
@@ -158,26 +341,25 @@ const GroqSearch: React.FC<GroqSearchProps> = ({ isOpen, onClose }) => {
           <div ref={messagesEndRef} />
         </div>
 
-        <form className="groq-input-area" onSubmit={handleSend}>
-          <div className="input-container">
-            <Sparkles size={18} className="sparkle-icon" />
+        <div className="groq-input-container">
+          <form className="groq-input-form" onSubmit={handleSend}>
             <input 
               type="text" 
-              placeholder="Ask me anything... (e.g. Find me a heater)" 
+              placeholder="Ask for products, recipes, or help..." 
               value={input}
               onChange={(e) => setInput(e.target.value)}
               autoFocus
             />
             <button type="submit" disabled={isLoading || !input.trim()}>
-              {isLoading ? <Loader2 size={20} className="animate-spin" /> : <Send size={20} />}
+              {isLoading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
             </button>
+          </form>
+          <div className="groq-footer-hints">
+            <button onClick={() => setInput('Find me some fresh fruits')}>🍎 Fruits</button>
+            <button onClick={() => setInput('What is the status of my order?')}>📦 My Orders</button>
+            <button onClick={() => setInput('Where is your City Center branch?')}>📍 Branches</button>
+            <button onClick={() => setInput('Clear my shopping cart')}>🧹 Clear Cart</button>
           </div>
-        </form>
-
-        <div className="groq-footer-hints">
-          <div className="hint-item"><Search size={12} /> Search Catalog</div>
-          <div className="hint-item"><MessageSquare size={12} /> Recipe Advice</div>
-          <div className="hint-item"><Sparkles size={12} /> Smart Recommendations</div>
         </div>
       </div>
     </div>
@@ -185,3 +367,4 @@ const GroqSearch: React.FC<GroqSearchProps> = ({ isOpen, onClose }) => {
 };
 
 export default GroqSearch;
+

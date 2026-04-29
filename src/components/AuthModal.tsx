@@ -9,10 +9,11 @@ import './AuthModal.css';
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onAuthSuccess?: () => void;
   initialMode?: 'signin' | 'signup' | 'forgot';
 }
 
-const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'signin' }) => {
+const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess, initialMode = 'signin' }) => {
   const [mode, setMode] = useState<'signin' | 'signup' | 'forgot'>(initialMode);
   const [formData, setFormData] = useState({
     fullName: '',
@@ -71,12 +72,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 's
           assignedBranchId: (formData.role === 'branch_manager' || formData.role === 'branch_staff') ? formData.assignedBranchId : undefined
         }, rememberMe);
       } else {
-        await login(formData.phoneNumber, formData.password, rememberMe);
+        await login(formData.phoneNumber, formData.password, formData.role, rememberMe);
       }
       
       setIsSuccess(true);
       setTimeout(() => {
         onClose();
+        if (onAuthSuccess) onAuthSuccess();
       }, 2000);
     } catch (err: any) {
       setError(err.message || 'An error occurred during authentication.');
@@ -103,11 +105,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 's
         };
         await register(demoData, true);
       } else {
-        await login(demoUser.phoneNumber, demoUser.password, true);
+        await login(demoUser.phoneNumber, demoUser.password!, role, true);
       }
       
       setIsSuccess(true);
-      setTimeout(() => onClose(), 1500);
+      setTimeout(() => {
+        onClose();
+        if (onAuthSuccess) onAuthSuccess();
+      }, 1500);
     } catch (err: any) {
       setError('Demo login failed. Please try normal sign up.');
     } finally {
@@ -178,31 +183,32 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 's
             )}
 
             <form className="auth-form" onSubmit={handleSubmit}>
+              {mode !== 'forgot' && (
+                <div className="form-group">
+                  <label>Select User Level</label>
+                  <div className="role-selector-cards">
+                    {[
+                      { id: 'customer', label: 'Customer', icon: <User size={18} /> },
+                      { id: 'branch_manager', label: 'Manager', icon: <ShieldCheck size={18} /> },
+                      { id: 'CEO', label: 'CEO', icon: <PieChart size={18} /> }
+                    ].map(roleItem => (
+                      <button
+                        key={roleItem.id}
+                        type="button"
+                        className={`role-card ${formData.role === roleItem.id ? 'active' : ''}`}
+                        onClick={() => setFormData({ ...formData, role: roleItem.id as UserRole })}
+                      >
+                        {roleItem.icon}
+                        <span>{roleItem.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {mode === 'signup' && (
                 <>
-                  <div className="form-group">
-                    <label>Select Your Role</label>
-                    <div className="role-selector-cards">
-                      {[
-                        { id: 'customer', label: 'Customer', icon: <User size={18} /> },
-                        { id: 'branch_manager', label: 'Manager', icon: <ShieldCheck size={18} /> },
-                        { id: 'branch_staff', label: 'Staff', icon: <ClipboardList size={18} /> },
-                        { id: 'CEO', label: 'CEO', icon: <PieChart size={18} /> }
-                      ].map(roleItem => (
-                        <button
-                          key={roleItem.id}
-                          type="button"
-                          className={`role-card ${formData.role === roleItem.id ? 'active' : ''}`}
-                          onClick={() => setFormData({ ...formData, role: roleItem.id as UserRole })}
-                        >
-                          {roleItem.icon}
-                          <span>{roleItem.label}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {(formData.role === 'branch_manager' || formData.role === 'branch_staff') && (
+                  {formData.role === 'branch_manager' && (
                     <div className="form-group">
                       <label>Assign Branch</label>
                       <div className="input-wrapper">

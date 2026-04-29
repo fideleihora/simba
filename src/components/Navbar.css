@@ -357,8 +357,8 @@
 }
 
 .nav-promo-slider {
-  display: inline-flex;
-  animation: nav-slide 20s linear infinite;
+  display: flex;
+  gap: 20px;
 }
 
 .nav-promo-text {
@@ -372,15 +372,6 @@
 
 .nav-promo-text.mtn {
   color: #c9a000;
-}
-
-.nav-promo-text.airtel {
-  color: #d00000;
-}
-
-@keyframes nav-slide {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
 }
 
 .category-dropdown-container {

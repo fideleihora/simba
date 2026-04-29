@@ -1,11 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import { X, User, ShoppingBag, PieChart, BarChart3, Settings, LogOut, Package, Users, MapPin, TrendingUp, DollarSign, Clock, CheckCircle2, Edit3, Save, ClipboardList, CheckCircle } from 'lucide-react';
+import { X, User, ShoppingBag, PieChart, BarChart3, Settings, LogOut, Package, Users, MapPin, TrendingUp, DollarSign, Clock, CheckCircle2, Edit3, Save, ClipboardList, CheckCircle, PlusCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useStock } from '../context/StockContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useProducts } from '../hooks/useProducts';
 import { branches as branchesList, getBranchIdByName } from '../data/branches';
+import { Product } from '../types';
 import './DashboardModal.css';
 
 interface DashboardModalProps {
@@ -16,30 +17,39 @@ interface DashboardModalProps {
 const DashboardModal: React.FC<DashboardModalProps> = ({ isOpen, onClose }) => {
   const { user, users, logout } = useAuth();
   const { transactions, updateTransactionStatus, assignOrderToStaff } = useCart();
-  const { branchStock, updateStock } = useStock();
+  const { branchStock, updateStock, addProduct } = useStock();
   const { allProducts } = useProducts();
   const { t } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'overview' | 'stock' | 'orders' | 'assignments' | 'users' | 'branches'>('overview');
+  
+  const [activeTab, setActiveTab] = useState<'overview' | 'stock' | 'users' | 'branches' | 'add_product' | 'all_orders'>('overview');
   const [editingStockId, setEditingStockId] = useState<number | null>(null);
   const [tempStockValue, setEditingStockValue] = useState<number>(0);
   const [selectedStaffId, setSelectedStaffId] = useState<Record<string, string>>({});
+  
+  const [newProduct, setNewProduct] = useState<Omit<Product, 'id'>>({
+    name: '',
+    price: 0,
+    category: 'Groceries',
+    subcategoryId: 1,
+    inStock: true,
+    image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=800',
+    unit: 'pcs'
+  });
 
   if (!isOpen || !user) return null;
 
   const branchId = user.assignedBranchId || '1';
   const isManager = user.role === 'branch_manager';
-  const isStaff = user.role === 'branch_staff';
   const isCEO = user.role === 'CEO';
+  const isStaff = user.role === 'branch_staff';
 
   const userTransactions = transactions.filter(tr => tr.userId === user.id);
   const totalSpent = useMemo(() => userTransactions.reduce((acc, tr) => acc + tr.total, 0), [userTransactions]);
 
-  // Branch Manager View: All orders for this branch
   const branchOrders = transactions.filter(tr => {
     return getBranchIdByName(tr.pickupBranch || '') === branchId;
   });
 
-  // CEO View: Aggregate stats
   const totalRevenue = transactions.reduce((acc, tr) => acc + tr.total, 0);
   const totalOrders = transactions.length;
   const totalCustomers = users.filter(u => u.role === 'customer').length;
@@ -50,7 +60,6 @@ const DashboardModal: React.FC<DashboardModalProps> = ({ isOpen, onClose }) => {
     return { ...b, orders: orders.length, revenue };
   });
 
-  // Staff View: Orders assigned to this user
   const assignedToMe = transactions.filter(tr => tr.assignedStaffId === user.id);
 
   const formatPrice = (price: number) => {
@@ -74,8 +83,6 @@ const DashboardModal: React.FC<DashboardModalProps> = ({ isOpen, onClose }) => {
   };
 
   const currentBranchStock = branchStock.filter(s => s.branchId === branchId);
-  
-  // Real staff from the users list
   const availableStaff = users.filter(u => u.role === 'branch_staff' && u.assignedBranchId === branchId);
 
   const handleSaveStock = (productId: number) => {
@@ -90,12 +97,95 @@ const DashboardModal: React.FC<DashboardModalProps> = ({ isOpen, onClose }) => {
     }
   };
 
+  const handleAddProduct = (e: React.FormEvent) => {
+    e.preventDefault();
+    addProduct(newProduct, isManager ? branchId : undefined);
+    setNewProduct({
+      name: '',
+      price: 0,
+      category: 'Groceries',
+      subcategoryId: 1,
+      inStock: true,
+      image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=800',
+      unit: 'pcs'
+    });
+    setActiveTab('stock');
+    alert('Product added successfully!');
+  };
+
+  const renderAddProduct = () => (
+    <div className="dashboard-content">
+      <div className="dashboard-section">
+        <div className="section-header">
+          <h3>Add New Product</h3>
+          <p>{isCEO ? 'Add a product to the global catalog' : `Add a product to Branch #${branchId}`}</p>
+        </div>
+        <form className="add-product-form" onSubmit={handleAddProduct}>
+          <div className="form-grid">
+            <div className="form-group">
+              <label>Product Name</label>
+              <input 
+                type="text" 
+                required 
+                value={newProduct.name} 
+                onChange={e => setNewProduct({...newProduct, name: e.target.value})}
+              />
+            </div>
+            <div className="form-group">
+              <label>Price (RWF)</label>
+              <input 
+                type="number" 
+                required 
+                value={newProduct.price} 
+                onChange={e => setNewProduct({...newProduct, price: parseInt(e.target.value) || 0})}
+              />
+            </div>
+            <div className="form-group">
+              <label>Category</label>
+              <select 
+                value={newProduct.category} 
+                onChange={e => setNewProduct({...newProduct, category: e.target.value})}
+              >
+                <option value="Groceries">Groceries</option>
+                <option value="Vegetables">Vegetables</option>
+                <option value="Fruits">Fruits</option>
+                <option value="Meat">Meat</option>
+                <option value="Dairy">Dairy</option>
+                <option value="Bakery">Bakery</option>
+                <option value="Beverages">Beverages</option>
+                <option value="Household">Household</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Unit</label>
+              <input 
+                type="text" 
+                placeholder="e.g. kg, pcs, box" 
+                value={newProduct.unit} 
+                onChange={e => setNewProduct({...newProduct, unit: e.target.value})}
+              />
+            </div>
+            <div className="form-group full-width">
+              <label>Image URL</label>
+              <input 
+                type="text" 
+                value={newProduct.image} 
+                onChange={e => setNewProduct({...newProduct, image: e.target.value})}
+              />
+            </div>
+          </div>
+          <button type="submit" className="btn btn-primary">Create Product</button>
+        </form>
+      </div>
+    </div>
+  );
+
   const renderStockManagement = () => (
     <div className="dashboard-content">
       <div className="dashboard-section">
         <div className="section-header">
-          <h3>Inventory Management (Branch #{branchId})</h3>
-          <p>Update stock levels for products at your branch.</p>
+          <h3>Inventory Management {isManager ? `(Branch #${branchId})` : '(Global)'}</h3>
+          <p>Update stock levels for products.</p>
         </div>
         <table className="dashboard-table">
           <thead>
@@ -107,13 +197,16 @@ const DashboardModal: React.FC<DashboardModalProps> = ({ isOpen, onClose }) => {
             </tr>
           </thead>
           <tbody>
-            {currentBranchStock.slice(0, 20).map((stock) => {
-              const product = allProducts.find((p) => p.id === stock.productId) || { name: `Product ${stock.productId}` };
+            {(isCEO ? allProducts : currentBranchStock).slice(0, 20).map((item) => {
+              const productId = isCEO ? (item as Product).id : (item as any).productId;
+              const product = allProducts.find((p) => p.id === productId) || { name: `Product ${productId}` };
+              const stockLevel = isCEO ? 0 : (item as any).stockLevel; // CEO view of all products might not show stock of a specific branch easily here
+              
               return (
-                <tr key={stock.productId}>
+                <tr key={productId}>
                   <td>{product.name}</td>
                   <td>
-                    {editingStockId === stock.productId ? (
+                    {editingStockId === productId && isManager ? (
                       <input 
                         type="number" 
                         value={tempStockValue} 
@@ -122,26 +215,28 @@ const DashboardModal: React.FC<DashboardModalProps> = ({ isOpen, onClose }) => {
                         autoFocus
                       />
                     ) : (
-                      stock.stockLevel
+                      isCEO ? 'N/A' : stockLevel
                     )}
                   </td>
                   <td>
-                    <span className={`badge ${stock.stockLevel < 10 ? 'warning' : 'success'}`}>
-                      {stock.stockLevel < 10 ? 'Low' : 'Good'}
+                    <span className={`badge ${stockLevel < 10 ? 'warning' : 'success'}`}>
+                      {stockLevel < 10 ? 'Low' : 'Good'}
                     </span>
                   </td>
                   <td>
-                    {editingStockId === stock.productId ? (
-                      <button className="icon-btn save-btn" onClick={() => handleSaveStock(stock.productId)}>
-                        <Save size={16} />
-                      </button>
-                    ) : (
-                      <button className="icon-btn edit-btn" onClick={() => {
-                        setEditingStockId(stock.productId);
-                        setEditingStockValue(stock.stockLevel);
-                      }}>
-                        <Edit3 size={16} />
-                      </button>
+                    {isManager && (
+                      editingStockId === productId ? (
+                        <button className="icon-btn save-btn" onClick={() => handleSaveStock(productId)}>
+                          <Save size={16} />
+                        </button>
+                      ) : (
+                        <button className="icon-btn edit-btn" onClick={() => {
+                          setEditingStockId(productId);
+                          setEditingStockValue(stockLevel);
+                        }}>
+                          <Edit3 size={16} />
+                        </button>
+                      )
                     )}
                   </td>
                 </tr>
@@ -163,7 +258,7 @@ const DashboardModal: React.FC<DashboardModalProps> = ({ isOpen, onClose }) => {
         <div className="dashboard-section">
           <div className="section-header">
             <h3>User Management</h3>
-            <p>{isCEO ? 'Overview of all users in the system' : `Manage staff and customers for Branch #${branchId}`}</p>
+            <p>{isCEO ? 'Overview of all users' : `Manage staff and customers for Branch #${branchId}`}</p>
           </div>
           <table className="dashboard-table">
             <thead>
@@ -276,6 +371,36 @@ const DashboardModal: React.FC<DashboardModalProps> = ({ isOpen, onClose }) => {
     </div>
   );
 
+  const renderAllOrders = () => (
+    <div className="dashboard-content">
+      <div className="dashboard-section">
+        <div className="section-header">
+          <h3>Global Transactions</h3>
+          <p>Review all orders across all branches.</p>
+        </div>
+        <div className="activity-list">
+          {transactions.map(tr => (
+            <div key={tr.id} className="activity-item">
+              <div className="activity-details">
+                <p className="activity-title">
+                  Order #{tr.id.slice(-6)} 
+                  <span className={`badge ${getStatusColor(tr.status)}`}>{tr.status.toUpperCase()}</span>
+                </p>
+                <p className="activity-time">{new Date(tr.date).toLocaleString()} • Branch: {tr.pickupBranch}</p>
+                <div className="item-preview">
+                  {tr.items.map(i => `${i.name} (${i.quantity})`).join(', ')}
+                </div>
+              </div>
+              <div className="activity-amount">
+                <strong>{formatPrice(tr.total)}</strong>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
   const renderBranchManagerDashboard = () => (
     <div className="dashboard-content">
       <div className="dashboard-stats-grid">
@@ -289,7 +414,7 @@ const DashboardModal: React.FC<DashboardModalProps> = ({ isOpen, onClose }) => {
         <div className="stat-card">
           <ClipboardList className="stat-icon" />
           <div className="stat-info">
-            <span className="stat-label">Needs Assignment</span>
+            <span className="stat-label">Needs Action</span>
             <span className="stat-value">{branchOrders.filter(o => o.status === 'pending' || !o.assignedStaffId).length}</span>
           </div>
         </div>
@@ -303,7 +428,7 @@ const DashboardModal: React.FC<DashboardModalProps> = ({ isOpen, onClose }) => {
       </div>
 
       <div className="dashboard-section">
-        <h3>Manage Orders & Assignment</h3>
+        <h3>Manage Orders</h3>
         <div className="activity-list">
           {branchOrders.map(tr => (
             <div key={tr.id} className="activity-item">
@@ -319,12 +444,38 @@ const DashboardModal: React.FC<DashboardModalProps> = ({ isOpen, onClose }) => {
               </div>
               <div className="activity-actions">
                 {tr.status === 'pending' && (
+                  <div className="order-controls">
+                    <button 
+                      className="btn btn-success btn-sm"
+                      onClick={() => updateTransactionStatus(tr.id, 'accepted')}
+                    >
+                      Approve
+                    </button>
+                    <div className="assignment-control">
+                      <select 
+                        value={selectedStaffId[tr.id] || ''} 
+                        onChange={(e) => setSelectedStaffId({...selectedStaffId, [tr.id]: e.target.value})}
+                      >
+                        <option value="">Assign Staff</option>
+                        {availableStaff.map(s => <option key={s.id} value={s.id}>{s.fullName}</option>)}
+                      </select>
+                      <button 
+                        className="btn btn-primary btn-sm"
+                        onClick={() => handleAssign(tr.id)}
+                        disabled={!selectedStaffId[tr.id]}
+                      >
+                        Assign
+                      </button>
+                    </div>
+                  </div>
+                )}
+                {tr.status === 'accepted' && (
                   <div className="assignment-control">
                     <select 
                       value={selectedStaffId[tr.id] || ''} 
                       onChange={(e) => setSelectedStaffId({...selectedStaffId, [tr.id]: e.target.value})}
                     >
-                      <option value="">Select Staff</option>
+                      <option value="">Assign Staff</option>
                       {availableStaff.map(s => <option key={s.id} value={s.id}>{s.fullName}</option>)}
                     </select>
                     <button 
@@ -359,14 +510,14 @@ const DashboardModal: React.FC<DashboardModalProps> = ({ isOpen, onClose }) => {
         <div className="stat-card primary">
           <Clock className="stat-icon" />
           <div className="stat-info">
-            <span className="stat-label">Assigned Orders</span>
+            <span className="stat-label">Preparing</span>
             <span className="stat-value">{assignedToMe.filter(o => o.status === 'preparing').length}</span>
           </div>
         </div>
         <div className="stat-card success">
           <CheckCircle className="stat-icon" />
           <div className="stat-info">
-            <span className="stat-label">Ready for Pickup</span>
+            <span className="stat-label">Ready</span>
             <span className="stat-value">{assignedToMe.filter(o => o.status === 'ready').length}</span>
           </div>
         </div>
@@ -476,12 +627,26 @@ const DashboardModal: React.FC<DashboardModalProps> = ({ isOpen, onClose }) => {
                   <MapPin size={18} /> Branches
                 </button>
                 <button 
+                  className={`nav-item ${activeTab === 'all_orders' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('all_orders')}
+                >
+                  <BarChart3 size={18} /> All Orders
+                </button>
+                <button 
                   className={`nav-item ${activeTab === 'users' ? 'active' : ''}`}
                   onClick={() => setActiveTab('users')}
                 >
                   <Users size={18} /> User Management
                 </button>
               </>
+            )}
+            {(isCEO || isManager) && (
+              <button 
+                className={`nav-item ${activeTab === 'add_product' ? 'active' : ''}`}
+                onClick={() => setActiveTab('add_product')}
+              >
+                <PlusCircle size={18} /> Add Product
+              </button>
             )}
             {isManager && (
               <>
@@ -511,15 +676,19 @@ const DashboardModal: React.FC<DashboardModalProps> = ({ isOpen, onClose }) => {
             <button className="dashboard-close" onClick={onClose}><X size={20} /></button>
           </div>
 
-          {activeTab === 'overview' && (
-            user.role === 'customer' ? renderCustomerDashboard() : 
-            user.role === 'branch_manager' ? renderBranchManagerDashboard() :
-            user.role === 'branch_staff' ? renderStaffDashboard() : 
-            user.role === 'CEO' ? renderCEODashboard() : null
-          )}
-          {activeTab === 'stock' && isManager && renderStockManagement()}
-          {activeTab === 'users' && (isCEO || isManager) && renderUserManagement()}
-          {activeTab === 'branches' && isCEO && renderCEODashboard()}
+          <div className="dashboard-content-container">
+            {activeTab === 'overview' && (
+              user.role === 'customer' ? renderCustomerDashboard() : 
+              user.role === 'branch_manager' ? renderBranchManagerDashboard() :
+              user.role === 'branch_staff' ? renderStaffDashboard() : 
+              user.role === 'CEO' ? renderCEODashboard() : null
+            )}
+            {activeTab === 'stock' && (isCEO || isManager) && renderStockManagement()}
+            {activeTab === 'add_product' && (isCEO || isManager) && renderAddProduct()}
+            {activeTab === 'users' && (isCEO || isManager) && renderUserManagement()}
+            {activeTab === 'branches' && isCEO && renderCEODashboard()}
+            {activeTab === 'all_orders' && isCEO && renderAllOrders()}
+          </div>
         </div>
       </div>
     </div>

@@ -191,6 +191,7 @@ const AppContent: React.FC = () => {
         isOpen={authModal.isOpen}
         initialMode={authModal.mode}
         onClose={() => setAuthModal({ ...authModal, isOpen: false })}
+        onAuthSuccess={() => setIsDashboardOpen(true)}
       />
 
       <PaymentModal
@@ -209,6 +210,7 @@ const AppContent: React.FC = () => {
       <GroqSearch
         isOpen={isGroqOpen}
         onClose={() => setIsGroqOpen(false)}
+        onCartOpen={() => setIsCartOpen(true)}
       />
 
       <FavoritesDrawer

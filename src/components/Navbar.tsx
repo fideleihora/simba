@@ -354,6 +354,9 @@ const Navbar: React.FC<NavbarProps> = ({
               value={searchTerm}
               onChange={(e) => onSearch(e.target.value)}
             />
+            <button className="groq-trigger-btn" onClick={onGroqOpen}>
+              <Sparkles size={18} />
+            </button>
             <button className="search-btn">
               <Search size={20} />
             </button>
@@ -405,12 +408,6 @@ const Navbar: React.FC<NavbarProps> = ({
               <span className="nav-promo-text">🚀 30 MINUTES DELIVERY</span>
               <span className="nav-promo-text">🥬 FRESH PRODUCTS</span>
               <span className="nav-promo-text mtn">📱 MTN MOMO PAY</span>
-              <span className="nav-promo-text airtel">💳 AIRTEL MONEY</span>
-              {/* Duplicate for seamless loop */}
-              <span className="nav-promo-text">🚀 30 MINUTES DELIVERY</span>
-              <span className="nav-promo-text">🥬 FRESH PRODUCTS</span>
-              <span className="nav-promo-text mtn">📱 MTN MOMO PAY</span>
-              <span className="nav-promo-text airtel">💳 AIRTEL MONEY</span>
             </div>
           </div>
         </div>
