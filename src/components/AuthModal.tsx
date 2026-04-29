@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, User, Mail, Phone, Lock, ArrowRight, Loader2, AlertCircle, Eye, EyeOff, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { X, User, Mail, Phone, Lock, ArrowRight, Loader2, AlertCircle, Eye, EyeOff, CheckCircle2, ShieldCheck, ArrowLeft, MapPin } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { UserRole } from '../types';
@@ -8,17 +8,31 @@ import './AuthModal.css';
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialMode?: 'signin' | 'signup';
+  initialMode?: 'signin' | 'signup' | 'forgot';
 }
 
+const branches = [
+  { id: '1', name: 'Simba City Center (UTC)' },
+  { id: '2', name: 'Simba Gishushu' },
+  { id: '3', name: 'Simba Nyarutarama' },
+  { id: '4', name: 'Simba Kimironko' },
+  { id: '5', name: 'Simba Kicukiro' },
+  { id: '6', name: 'Simba Nyamirambo' },
+  { id: '7', name: 'Simba Kimihurura' },
+  { id: '8', name: 'Simba Kanombe' },
+  { id: '9', name: 'Simba Gisozi' },
+  { id: '10', name: 'Simba Gisenyi' },
+];
+
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'signin' }) => {
-  const [mode, setMode] = useState<'signin' | 'signup'>(initialMode);
+  const [mode, setMode] = useState<'signin' | 'signup' | 'forgot'>(initialMode);
   const [formData, setFormData] = useState({
     fullName: '',
     phoneNumber: '',
     email: '',
     password: '',
-    role: 'customer' as UserRole
+    role: 'customer' as UserRole,
+    assignedBranchId: '1'
   });
   const [rememberMe, setRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
@@ -46,6 +60,18 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 's
     setLoading(true);
     setError(null);
 
+    if (mode === 'forgot') {
+      setTimeout(() => {
+        setIsSuccess(true);
+        setLoading(false);
+        setTimeout(() => {
+          setIsSuccess(false);
+          setMode('signin');
+        }, 3000);
+      }, 1500);
+      return;
+    }
+
     try {
       if (mode === 'signup') {
         await register({
@@ -53,7 +79,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 's
           phoneNumber: formData.phoneNumber,
           email: formData.email,
           password: formData.password,
-          role: formData.role
+          role: formData.role,
+          assignedBranchId: (formData.role === 'branch_manager' || formData.role === 'branch_staff') ? formData.assignedBranchId : undefined
         }, rememberMe);
       } else {
         await login(formData.phoneNumber, formData.password, rememberMe);
@@ -71,33 +98,47 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 's
   };
 
   return (
-    <div className="auth-overlay" onClick={onClose}>
-      <div className="auth-modal" onClick={(e) => e.stopPropagation()}>
+    <div className="auth-overlay glass-effect" onClick={onClose}>
+      <div className="auth-modal glass-effect animate-fade-in" onClick={(e) => e.stopPropagation()}>
         <button className="auth-close" onClick={onClose}>
-          <X size={24} />
+          <X size={20} />
         </button>
 
         {isSuccess ? (
           <div className="auth-success-state">
-            <CheckCircle2 size={80} color="#22c55e" />
-            <h2>{mode === 'signin' ? 'Welcome Back!' : 'Account Created!'}</h2>
+            <div className="success-icon-wrapper">
+              <CheckCircle2 size={48} color="#0067c0" />
+            </div>
+            <h2>{mode === 'forgot' ? 'Email Sent!' : (mode === 'signin' ? 'Welcome Back!' : 'Account Created!')}</h2>
             <p>
-              {mode === 'signin' 
-                ? 'You have successfully signed in to your account.' 
-                : 'Your Simba account has been created successfully.'}
+              {mode === 'forgot' 
+                ? 'Check your inbox for instructions to reset your password.'
+                : (mode === 'signin' 
+                  ? 'You have successfully signed in to your account.' 
+                  : 'Your Simba account has been created successfully.')}
             </p>
-            <div className="success-loader"></div>
           </div>
         ) : (
           <>
             <div className="auth-header">
-              <h2>{mode === 'signin' ? t('signIn') : t('signUp')}</h2>
-              <p>{mode === 'signin' ? 'Welcome back! Please enter your details.' : 'Create your Simba account to start shopping.'}</p>
+              {mode === 'forgot' && (
+                <button className="back-btn" onClick={() => setMode('signin')}>
+                  <ArrowLeft size={18} />
+                </button>
+              )}
+              <h2>{mode === 'signin' ? t('signIn') : (mode === 'signup' ? t('signUp') : 'Reset Password')}</h2>
+              <p>
+                {mode === 'signin' 
+                  ? 'Welcome back! Please enter your details.' 
+                  : (mode === 'signup' 
+                    ? 'Create your Simba account to start shopping.' 
+                    : 'Enter your email to receive a password reset link.')}
+              </p>
             </div>
 
             {error && (
               <div className="auth-error">
-                <AlertCircle size={18} />
+                <AlertCircle size={16} />
                 <span>{error}</span>
               </div>
             )}
@@ -118,10 +159,30 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 's
                       >
                         <option value="customer">Customer</option>
                         <option value="branch_manager">Branch Manager</option>
+                        <option value="branch_staff">Branch Staff</option>
                         <option value="CEO">CEO</option>
                       </select>
                     </div>
                   </div>
+
+                  {(formData.role === 'branch_manager' || formData.role === 'branch_staff') && (
+                    <div className="form-group">
+                      <label>Assign Branch</label>
+                      <div className="input-wrapper">
+                        <MapPin size={18} className="input-icon" />
+                        <select 
+                          name="assignedBranchId" 
+                          value={formData.assignedBranchId}
+                          onChange={handleChange}
+                          required
+                        >
+                          {branches.map(b => (
+                            <option key={b.id} value={b.id}>{b.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="form-group">
                     <label>Full Name</label>
@@ -141,21 +202,38 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 's
                 </>
               )}
 
-              <div className="form-group">
-                <label>Mobile Number</label>
-                <div className="input-wrapper">
-                  <Phone size={18} className="input-icon" />
-                  <input 
-                    type="tel" 
-                    name="phoneNumber"
-                    placeholder="07XX XXX XXX" 
-                    value={formData.phoneNumber}
-                    onChange={handleChange}
-                    required 
-                    autoFocus={mode === 'signin'}
-                  />
+              {mode === 'forgot' ? (
+                <div className="form-group">
+                  <label>Email Address</label>
+                  <div className="input-wrapper">
+                    <Mail size={18} className="input-icon" />
+                    <input 
+                      type="email" 
+                      name="email"
+                      placeholder="john@example.com" 
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="form-group">
+                  <label>Mobile Number</label>
+                  <div className="input-wrapper">
+                    <Phone size={18} className="input-icon" />
+                    <input 
+                      type="tel" 
+                      name="phoneNumber"
+                      placeholder="07XX XXX XXX" 
+                      value={formData.phoneNumber}
+                      onChange={handleChange}
+                      required 
+                      autoFocus={mode === 'signin'}
+                    />
+                  </div>
+                </div>
+              )}
 
               {mode === 'signup' && (
                 <div className="form-group">
@@ -173,54 +251,57 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 's
                 </div>
               )}
 
-              <div className="form-group">
-                <label>Password</label>
-                <div className="input-wrapper">
-                  <Lock size={18} className="input-icon" />
-                  <input 
-                    type={showPassword ? "text" : "password"}
-                    name="password"
-                    placeholder="••••••••" 
-                    value={formData.password}
-                    onChange={handleChange}
-                    required 
-                  />
-                  <button 
-                    type="button" 
-                    className="show-password-toggle" 
-                    onClick={() => setShowPassword(!showPassword)}
-                    tabIndex={-1}
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              {mode !== 'forgot' && (
+                <div className="form-group">
+                  <label>Password</label>
+                  <div className="input-wrapper">
+                    <Lock size={18} className="input-icon" />
+                    <input 
+                      type={showPassword ? "text" : "password"}
+                      name="password"
+                      placeholder="••••••••" 
+                      value={formData.password}
+                      onChange={handleChange}
+                      required 
+                    />
+                    <button 
+                      type="button" 
+                      className="show-password-toggle" 
+                      onClick={() => setShowPassword(!showPassword)}
+                      tabIndex={-1}
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {mode === 'signin' && (
+                <div className="form-options">
+                  <label className="remember-me">
+                    <input 
+                      type="checkbox" 
+                      name="rememberMe" 
+                      checked={rememberMe}
+                      onChange={handleChange}
+                    />
+                    <span>Remember me</span>
+                  </label>
+                  <button type="button" className="forgot-password-link" onClick={() => setMode('forgot')}>
+                    Forgot password?
                   </button>
                 </div>
-                </div>
+              )}
 
-                <div className="form-options">
-                <label className="remember-me">
-                  <input 
-                    type="checkbox" 
-                    name="rememberMe" 
-                    checked={rememberMe}
-                    onChange={handleChange}
-                  />
-                  <span>Remember me</span>
-                </label>
-                {mode === 'signin' && (
-                  <button type="button" className="forgot-password">Forgot password?</button>
-                )}
-                </div>
-
-                <button type="submit" className="btn btn-primary btn-block auth-submit" disabled={loading}>
-
+              <button type="submit" className="btn btn-primary btn-block auth-submit" disabled={loading}>
                 {loading ? (
                   <>
                     <Loader2 size={18} className="animate-spin" />
-                    {mode === 'signin' ? 'Signing in...' : 'Creating account...'}
+                    {mode === 'forgot' ? 'Sending...' : (mode === 'signin' ? 'Signing in...' : 'Creating account...')}
                   </>
                 ) : (
                   <>
-                    {mode === 'signin' ? t('signIn') : t('signUp')}
+                    {mode === 'signin' ? t('signIn') : (mode === 'signup' ? t('signUp') : 'Send Reset Link')}
                     <ArrowRight size={18} />
                   </>
                 )}
@@ -229,8 +310,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 's
 
             <div className="auth-footer">
               <p>
-                {mode === 'signin' ? "Don't have an account? " : "Already have an account? "}
-                <button className="mode-toggle" onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}>
+                {mode === 'signin' ? "Don't have an account? " : (mode === 'signup' ? "Already have an account? " : "Remembered your password? ")}
+                <button className="mode-toggle" onClick={() => setMode(mode === 'signup' ? 'signin' : 'signup')}>
                   {mode === 'signin' ? t('signUp') : t('signIn')}
                 </button>
               </p>

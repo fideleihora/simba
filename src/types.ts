@@ -30,7 +30,13 @@ export interface Transaction {
   total: number;
   status: 'pending' | 'accepted' | 'picked_up' | 'failed' | 'completed';
   pickupBranch?: string;
+  pickupTime?: string;
   depositPaid: number;
+  review?: {
+    rating: number;
+    comment: string;
+    date: string;
+  };
 }
 
 export type UserRole = 'CEO' | 'branch_manager' | 'customer';
@@ -42,6 +48,14 @@ export interface User {
   email?: string;
   password?: string; // Only for local storage simulation
   role: UserRole;
+  assignedBranchId?: string; // For branch managers
+  noShowFlags?: number;
+}
+
+export interface BranchProduct {
+  productId: number;
+  branchId: string;
+  stockLevel: number;
 }
 
 export interface Branch {
@@ -50,6 +64,8 @@ export interface Branch {
   address: string;
   city: string;
   phone?: string;
+  rating?: number;
+  totalReviews?: number;
 }
 
 export interface StoreData {

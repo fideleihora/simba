@@ -126,14 +126,21 @@
 
 .trx-pickup-info {
   display: flex;
-  align-items: center;
-  gap: 6px;
+  flex-direction: column;
+  gap: 8px;
   background-color: var(--light);
-  padding: 8px 12px;
-  border-radius: 8px;
+  padding: 12px;
+  border-radius: 10px;
   margin-bottom: 16px;
   font-size: 13px;
   color: var(--text-main);
+  border: 1px solid var(--border);
+}
+
+.pickup-location, .pickup-time {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .trx-pickup-info strong {
@@ -151,16 +158,18 @@
   gap: 6px;
 }
 
-.trx-status.completed {
-  background-color: #dcfce7;
-  color: #166534;
-}
+.trx-status.pending { background-color: #fef9c3; color: #854d0e; }
+.trx-status.accepted { background-color: #dbeafe; color: #1e40af; }
+.trx-status.picked_up { background-color: #f3e8ff; color: #6b21a8; }
+.trx-status.completed { background-color: #dcfce7; color: #166534; }
+.trx-status.failed { background-color: #fee2e2; color: #991b1b; }
 
 .trx-items {
   display: flex;
   flex-direction: column;
   gap: 8px;
   margin-bottom: 16px;
+  padding: 0 4px;
 }
 
 .trx-item-row {
@@ -178,23 +187,179 @@
   color: var(--text-muted);
 }
 
-.trx-footer {
+.trx-card-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 16px;
+  border-top: 2px solid var(--border);
+}
+
+.trx-total-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background-color: var(--light);
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.deposit-line, .total-line, .balance-line {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding-top: 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.deposit-amount { color: #166534; }
+.total-amount { font-weight: 900; color: var(--dark); font-size: 16px; }
+.balance-amount { color: var(--primary); font-weight: 800; font-size: 15px; }
+
+.total-line {
+  padding: 4px 0;
   border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  margin: 4px 0;
 }
 
-.total-label {
-  font-weight: 700;
-  color: var(--text-muted);
+.received-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--primary);
+  color: var(--white);
+  border-radius: 10px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: var(--transition);
+  text-transform: uppercase;
+  font-size: 13px;
+  letter-spacing: 0.5px;
 }
 
-.total-amount {
-  font-size: 18px;
-  font-weight: 900;
+.received-btn:hover {
+  background-color: var(--secondary);
+  color: var(--dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.review-btn-trigger {
+  width: 100%;
+  padding: 10px;
+  background-color: var(--white);
   color: var(--primary);
+  border: 2px solid var(--primary);
+  border-radius: 10px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 13px;
+}
+
+.review-btn-trigger:hover {
+  background-color: var(--primary);
+  color: var(--white);
+}
+
+.review-form {
+  margin-top: 12px;
+  padding: 16px;
+  background-color: var(--light);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rating-selector {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.rating-selector button {
+  background: none;
+  color: #cbd5e1;
+  transition: var(--transition);
+}
+
+.rating-selector button.active {
+  color: #ffcc00;
+  transform: scale(1.1);
+}
+
+.review-form textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-size: 13px;
+  font-weight: 600;
+  resize: vertical;
+}
+
+.review-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.review-actions button {
+  flex: 1;
+  padding: 8px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.cancel-btn {
+  background-color: #f1f5f9;
+  color: #64748b;
+}
+
+.submit-btn {
+  background-color: var(--primary);
+  color: var(--white);
+}
+
+.review-display {
+  padding: 12px;
+  background-color: #fff9db;
+  border-radius: 8px;
+  margin-top: 8px;
+}
+
+.review-rating {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 6px;
+}
+
+.review-comment {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--dark);
+  font-style: italic;
+}
+
+.completed-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  background-color: #dcfce7;
+  color: #166534;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 14px;
 }
 
 @media (max-width: 600px) {

@@ -47,6 +47,7 @@ const translations: Translations = {
   specialPromos: { en: 'Special Promotions', rw: 'Igabanyuka ridasanzwe', fr: 'Promotions Spéciales' },
   shopByCategory: { en: 'Shop by Category', rw: 'Shakira mu Byiciro', fr: 'Acheter par Catégorie' },
   allProducts: { en: 'All Products', rw: 'Ibikoresho Byose', fr: 'Tous les Produits' },
+  noProductsFound: { en: 'No products found matching your search.', rw: 'Nta bikoresho bibonetse bihuje n’ibyo mushaka.', fr: 'Aucun produit trouvé correspondant à votre recherche.' },
 
   // Product Card
   addToCart: { en: 'Add to Cart', rw: 'Shyira mu Ikarita', fr: 'Ajouter au Panier' },

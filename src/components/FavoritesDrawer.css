@@ -168,6 +168,19 @@
   cursor: not-allowed;
 }
 
+.btn-add-fav.out-of-stock {
+  background-color: #f8f9fa;
+  border-color: #dee2e6;
+  color: #6c757d;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.btn-add-fav.out-of-stock:hover {
+  background-color: #e9ecef;
+  border-color: #ced4da;
+}
+
 .btn-remove-fav {
   background-color: #fee2e2;
   color: #b91c1c;

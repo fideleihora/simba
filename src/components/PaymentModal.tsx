@@ -10,16 +10,17 @@ interface PaymentModalProps {
   onClose: () => void;
   amount: number;
   selectedBranch: string;
+  pickupTime: string;
 }
 
-const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, amount, selectedBranch }) => {
+const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, amount, selectedBranch, pickupTime }) => {
   const { t } = useLanguage();
   const { recordTransaction } = useCart();
-  const { user } = useAuth();
+  const { user, getRequiredDeposit } = useAuth();
   const [phoneNumber, setPhoneNumber] = useState('');
   const [status, setStatus] = useState<'idle' | 'processing' | 'success'>('idle');
 
-  const DEPOSIT_AMOUNT = 1000;
+  const DEPOSIT_AMOUNT = getRequiredDeposit();
 
   if (!isOpen) return null;
 
@@ -38,7 +39,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, amount, se
     // Simulate MOMO payment process
     setTimeout(() => {
       if (user) {
-        recordTransaction(user.id, selectedBranch, DEPOSIT_AMOUNT);
+        recordTransaction(user.id, selectedBranch, DEPOSIT_AMOUNT, pickupTime);
       }
       setStatus('success');
       setTimeout(() => {
@@ -62,6 +63,16 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, amount, se
             <h2>Order Pending</h2>
             <p>Your deposit of <strong>{formatPrice(DEPOSIT_AMOUNT)}</strong> has been received.</p>
             <p>Your order is now <strong>Pending</strong>. You will be notified once the manager at <strong>{selectedBranch}</strong> accepts it.</p>
+            <div className="pickup-details-confirmation">
+              <div className="confirm-item">
+                <MapPin size={16} />
+                <span>{selectedBranch}</span>
+              </div>
+              <div className="confirm-item">
+                <Clock size={16} />
+                <span>{new Date(pickupTime).toLocaleString()}</span>
+              </div>
+            </div>
             <div className="pickup-hint">
               <Clock size={16} />
               <span>Non-refundable deposit of {formatPrice(DEPOSIT_AMOUNT)}</span>
@@ -79,8 +90,14 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, amount, se
             </div>
 
             <div className="selected-branch-banner">
-              <MapPin size={18} />
-              <span>Pickup at: <strong>{selectedBranch}</strong></span>
+              <div className="banner-info">
+                <MapPin size={18} />
+                <span>Pickup: <strong>{selectedBranch}</strong></span>
+              </div>
+              <div className="banner-info">
+                <Clock size={18} />
+                <span>Time: <strong>{new Date(pickupTime).toLocaleString()}</strong></span>
+              </div>
             </div>
 
             <form className="payment-form" onSubmit={handlePayment}>

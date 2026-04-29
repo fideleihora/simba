@@ -62,12 +62,17 @@ const FavoritesDrawer: React.FC<FavoritesDrawerProps> = ({ isOpen, onClose }) =>
                     <p className="fav-item-price">{formatPrice(product.price)}</p>
                     <div className="fav-item-actions">
                       <button 
-                        className="btn-add-fav" 
-                        onClick={() => handleAddToCart(product)}
-                        disabled={!product.inStock}
+                        className={`btn-add-fav ${!product.inStock ? 'out-of-stock' : ''}`} 
+                        onClick={() => {
+                          if (product.inStock) {
+                            handleAddToCart(product);
+                          } else {
+                            alert(`${product.name}: ${t('outOfStock')}`);
+                          }
+                        }}
                       >
                         <ShoppingCart size={16} />
-                        {product.inStock ? t('addToCart') : t('soldOut')}
+                        {product.inStock ? t('addToCart') : t('outOfStock')}
                       </button>
                       <button className="btn-remove-fav" onClick={() => toggleFavorite(product)}>
                         <Trash2 size={16} />

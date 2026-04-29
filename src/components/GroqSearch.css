@@ -128,6 +128,25 @@
   font-weight: 500;
 }
 
+.message-text {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.groq-error-message {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  padding: 10px 16px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  margin: 10px 0;
+  border: 1px solid #fecaca;
+}
+
 .assistant .message-bubble {
   background-color: var(--white);
   color: var(--text-main);

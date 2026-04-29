@@ -14,7 +14,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({ products }) => {
   if (products.length === 0) {
     return (
       <div className="no-products">
-        <p>No products found matching your search.</p>
+        <p>{t('noProductsFound')}</p>
       </div>
     );
   }

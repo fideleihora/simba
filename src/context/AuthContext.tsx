@@ -3,6 +3,7 @@ import { User } from '../types';
 
 interface AuthContextType {
   user: User | null;
+  users: User[];
   register: (user: Omit<User, 'id'>, rememberMe: boolean) => Promise<void>;
   login: (phoneNumber: string, password?: string, rememberMe?: boolean) => Promise<void>;
   logout: () => void;
@@ -12,22 +13,25 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(() => {
-    const savedSession = localStorage.getItem('simba-session') || sessionStorage.getItem('simba-session');
-    return savedSession ? JSON.parse(savedSession) : null;
+  const [user, setUser] = useState<User | null>(null);
+  const [users, setUsers] = useState<User[]>(() => {
+    const saved = localStorage.getItem('simba-users');
+    return saved ? JSON.parse(saved) : [];
   });
 
-  const [users, setUsers] = useState<User[]>(() => {
-    const savedUsers = localStorage.getItem('simba-users');
-    return savedUsers ? JSON.parse(savedUsers) : [];
-  });
+  useEffect(() => {
+    const session = localStorage.getItem('simba-session') || sessionStorage.getItem('simba-session');
+    if (session) {
+      const parsedSession = JSON.parse(session);
+      setUser(parsedSession);
+    }
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('simba-users', JSON.stringify(users));
   }, [users]);
 
   const register = async (userData: Omit<User, 'id'>, rememberMe: boolean) => {
-    // Check if user exists
     const existing = users.find(u => u.phoneNumber === userData.phoneNumber);
     if (existing) {
       throw new Error('A user with this phone number already exists.');
@@ -40,7 +44,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     setUsers(prev => {
       const updated = [...prev, newUser];
-      localStorage.setItem('simba-users', JSON.stringify(updated));
       return updated;
     });
     setUser(newUser);
@@ -52,18 +55,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const login = async (phoneNumber: string, password?: string, rememberMe: boolean = true) => {
-    const foundUser = users.find(u => u.phoneNumber === phoneNumber);
+  const login = async (phoneNumber: string, password?: string, rememberMe: boolean = false) => {
+    const foundUser = users.find(u => u.phoneNumber === phoneNumber && u.password === password);
+    
     if (!foundUser) {
-      throw new Error('No account found with this phone number.');
-    }
-
-    if (password && foundUser.password && foundUser.password !== password) {
-      throw new Error('Incorrect password.');
+      throw new Error('Invalid phone number or password.');
     }
 
     setUser(foundUser);
-    
     if (rememberMe) {
       localStorage.setItem('simba-session', JSON.stringify(foundUser));
     } else {
@@ -78,7 +77,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, register, login, logout, isAuthenticated: !!user }}>
+    <AuthContext.Provider value={{ user, users, register, login, logout, isAuthenticated: !!user }}>
       {children}
     </AuthContext.Provider>
   );

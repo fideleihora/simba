@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ShoppingCart, Search, Menu, User, Phone, MapPin, Heart, Globe, Sun, Moon, ChevronDown, X, History, LogOut } from 'lucide-react';
+import { ShoppingCart, Search, Menu, User, Phone, MapPin, Heart, Globe, Sun, Moon, ChevronDown, X, History, LogOut, Sparkles } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useFavorites } from '../context/FavoritesContext';
 import { useLanguage } from '../context/LanguageContext';

@@ -165,6 +165,91 @@
   color: var(--dark);
 }
 
+/* Selection Mode Styles */
+.selection-stepper {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.selection-step h3 {
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 16px;
+  color: var(--dark);
+}
+
+.branches-grid-mini {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.branch-card-mini {
+  background-color: var(--light);
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.branch-card-mini:hover {
+  background-color: var(--white);
+  border-color: var(--border);
+}
+
+.branch-card-mini.active {
+  background-color: #fff9db;
+  border-color: var(--secondary);
+  color: var(--dark);
+  box-shadow: var(--shadow-sm);
+}
+
+.time-picker-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 400px;
+}
+
+.pickup-time-input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 2px solid var(--border);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-main);
+  background-color: var(--light);
+  transition: var(--transition);
+}
+
+.pickup-time-input:focus {
+  outline: none;
+  border-color: var(--secondary);
+  background-color: var(--white);
+}
+
+.time-hint {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.confirm-selection-btn {
+  height: 54px;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+}
+
 @media (max-width: 600px) {
   .branches-modal {
     max-height: 95vh;
