@@ -4,6 +4,7 @@ import { User, UserRole } from '../types';
 interface AuthContextType {
   user: User | null;
   users: User[];
+  lastIdentities: Record<UserRole, string | null>;
   register: (user: Omit<User, 'id'>, rememberMe: boolean) => Promise<void>;
   login: (phoneNumber: string, password: string, role: UserRole, rememberMe?: boolean) => Promise<void>;
   logout: () => void;
@@ -20,6 +21,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return saved ? JSON.parse(saved) : [];
   });
 
+  const [lastIdentities, setLastIdentities] = useState<Record<UserRole, string | null>>(() => {
+    const saved = localStorage.getItem('simba-last-identities');
+    return saved ? JSON.parse(saved) : { 'customer': null, 'branch_manager': null, 'CEO': null, 'branch_staff': null, 'admin': null };
+  });
+
   useEffect(() => {
     const session = localStorage.getItem('simba-session') || sessionStorage.getItem('simba-session');
     if (session) {
@@ -31,6 +37,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     localStorage.setItem('simba-users', JSON.stringify(users));
   }, [users]);
+
+  useEffect(() => {
+    localStorage.setItem('simba-last-identities', JSON.stringify(lastIdentities));
+  }, [lastIdentities]);
 
   const getRequiredDeposit = () => {
     if (!user) return 0;
@@ -51,11 +61,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       id: `USR-${Date.now()}`
     };
 
-    setUsers(prev => {
-      const updated = [...prev, newUser];
-      return updated;
-    });
+    setUsers(prev => [...prev, newUser]);
     setUser(newUser);
+    setLastIdentities(prev => ({ ...prev, [newUser.role]: newUser.phoneNumber }));
 
     if (rememberMe) {
       localStorage.setItem('simba-session', JSON.stringify(newUser));
@@ -76,6 +84,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     setUser(foundUser);
+    setLastIdentities(prev => ({ ...prev, [role]: phoneNumber }));
+    
     if (rememberMe) {
       localStorage.setItem('simba-session', JSON.stringify(foundUser));
     } else {
@@ -90,7 +100,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, users, register, login, logout, getRequiredDeposit, isAuthenticated: !!user }}>
+    <AuthContext.Provider value={{ user, users, lastIdentities, register, login, logout, getRequiredDeposit, isAuthenticated: !!user }}>
       {children}
     </AuthContext.Provider>
   );

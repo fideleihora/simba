@@ -30,7 +30,26 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess, i
   const [loading, setLoading] = useState(false);
   
   const { t } = useLanguage();
-  const { login, register, users } = useAuth();
+  const { login, register, lastIdentities } = useAuth();
+
+  // Pre-fill saved identity for the current role on mount or when mode changes to signin
+  React.useEffect(() => {
+    if (isOpen && mode === 'signin' && lastIdentities) {
+      const savedPhone = lastIdentities[formData.role] || '';
+      if (savedPhone) {
+        setFormData(prev => ({ ...prev, phoneNumber: savedPhone }));
+      }
+    }
+  }, [isOpen, mode, lastIdentities, formData.role]);
+
+  const handleRoleChange = (role: UserRole) => {
+    const savedPhone = lastIdentities ? (lastIdentities[role] || '') : '';
+    setFormData(prev => ({ 
+      ...prev, 
+      role, 
+      phoneNumber: mode === 'signin' ? savedPhone : prev.phoneNumber 
+    }));
+  };
 
   if (!isOpen) return null;
 
@@ -87,39 +106,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess, i
     }
   };
 
-  const handleDemoLogin = async (role: UserRole) => {
-    setLoading(true);
-    setError(null);
-    try {
-      // Find if a demo user already exists for this role
-      let demoUser = users.find(u => u.role === role);
-      
-      if (!demoUser) {
-        // Create a demo user if it doesn't exist
-        const demoData = {
-          fullName: `Demo ${role.replace('_', ' ')}`,
-          phoneNumber: role === 'customer' ? '0780000000' : (role === 'branch_manager' ? '0781111111' : '0782222222'),
-          password: 'password123',
-          role: role,
-          assignedBranchId: role === 'customer' ? undefined : '1'
-        };
-        await register(demoData, true);
-      } else {
-        await login(demoUser.phoneNumber, demoUser.password!, role, true);
-      }
-      
-      setIsSuccess(true);
-      setTimeout(() => {
-        onClose();
-        if (onAuthSuccess) onAuthSuccess();
-      }, 1500);
-    } catch (err: any) {
-      setError('Demo login failed. Please try normal sign up.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="auth-overlay glass-effect" onClick={onClose}>
       <div className="auth-modal glass-effect animate-fade-in" onClick={(e) => e.stopPropagation()}>
@@ -153,27 +139,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess, i
               <p>
                 {mode === 'signin' 
                   ? 'Welcome back! Choose your role to continue.' 
-                  : 'Create your account or use a demo role below.'}
+                  : 'Create your account to get started.'}
               </p>
             </div>
-
-            {/* Quick Access Demo Roles */}
-            <div className="demo-roles-container">
-              <p className="demo-label">Quick Access / Demo Login:</p>
-              <div className="demo-grid">
-                <button className="demo-btn customer" onClick={() => handleDemoLogin('customer')}>
-                  <User size={16} /> <span>Customer</span>
-                </button>
-                <button className="demo-btn manager" onClick={() => handleDemoLogin('branch_manager')}>
-                  <ShieldCheck size={16} /> <span>Manager</span>
-                </button>
-                <button className="demo-btn ceo" onClick={() => handleDemoLogin('CEO')}>
-                  <PieChart size={16} /> <span>CEO</span>
-                </button>
-              </div>
-            </div>
-
-            <div className="auth-divider"><span>OR CONTINUE WITH FORM</span></div>
 
             {error && (
               <div className="auth-error">
@@ -196,10 +164,15 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess, i
                         key={roleItem.id}
                         type="button"
                         className={`role-card ${formData.role === roleItem.id ? 'active' : ''}`}
-                        onClick={() => setFormData({ ...formData, role: roleItem.id as UserRole })}
+                        onClick={() => handleRoleChange(roleItem.id as UserRole)}
                       >
                         {roleItem.icon}
                         <span>{roleItem.label}</span>
+                        {mode === 'signin' && lastIdentities && lastIdentities[roleItem.id as UserRole] && (
+                          <div className="saved-badge" title="Saved account">
+                            <CheckCircle2 size={10} />
+                          </div>
+                        )}
                       </button>
                     ))}
                   </div>

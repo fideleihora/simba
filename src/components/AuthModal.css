@@ -426,6 +426,29 @@
   transition: all 0.2s ease;
   color: var(--text-main);
   text-align: left;
+  position: relative; /* Added for badge positioning */
+}
+
+.saved-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background-color: #22c55e;
+  color: white;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes bounceIn {
+  from { transform: scale(0); }
+  to { transform: scale(1); }
 }
 
 .role-card svg {
